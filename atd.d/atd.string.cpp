@@ -67,6 +67,24 @@ strings string::explode(const string &s, const string &delimiter)
 	return ss;
 }
 //====================================================
+//= 型変換
+//====================================================
+int string::toint(int base) const { return toint(*this, base); }
+int64 string::toint64(int base) const { return toint64(*this, base); }
+double string::todouble() const { return todouble(*this); }
+int string::toint(const string &s, int base)
+{
+	return ::strtol(s.c_str(), NULL, base);
+}
+int64 string::toint64(const string &s, int base)
+{
+	return ::strtoll(s.c_str(), NULL, base);
+}
+double string::todouble(const string &s)
+{
+	return ::strtod(s.c_str(), NULL);
+}
+//====================================================
 //= struct atd::strings
 //====================================================
 strings &strings::entryf(int count, ...)
@@ -80,4 +98,18 @@ strings &strings::entryf(int count, ...)
 	va_end(va);
 
 	return *this;
+}
+string strings::implode(const strings &ss, const string &glue)
+{
+	string s;
+	for (const_iterator i = ss.begin(), e = ss.end(); i != e; ++i)
+	{
+		if (s.length()) s += glue;
+		s += *i;
+	}
+	return s;
+}
+string strings::implode(const string &glue) const
+{
+	return implode(*this, glue);
 }

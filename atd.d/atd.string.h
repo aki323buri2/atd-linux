@@ -21,14 +21,18 @@ struct string : public object, public std::string
 
 	static string enclose(const string &s, const string &left, const string &right);
 	static strings explode(const string &s, const string &delimiter);
-	static int toint(const string &s);
-	static int64 toint64(const string &s);
+
+	//toint(), tointbase64()における'base'が0の場合、
+	//Cの定数表記に従う。
+	//つまり、0が先頭なら8進数、0xまたは0Xが先頭なら16進数、それ以外なら10進数
+	static int toint(const string &s, int base = 0);
+	static int64 toint64(const string &s, int base = 0);
 	static double todouble(const string &s);
 
 	string enclose(const string &left, const string &right) const;
 	strings explode(const string &delimiter) const;
-	int toint() const;
-	int64 toint64() const;
+	int toint(int base = 0) const;
+	int64 toint64(int base = 0) const;
 	double todouble() const;
 };
 //====================================================
@@ -60,7 +64,7 @@ struct strings : public object, public std::vector<string>
 	strings &entry(const string &s0, const string &s1, const string &s2, const string &s3, const string &s4, const string &s5, const string &s6, const string &s7, const string &s8, const string &s9)	{ return entryf(10, &s0[0], &s1[0], &s2[0], &s3[0], &s4[0], &s5[0], &s6[0], &s7[0], &s8[0], &s9[0]);  }
 	strings &entryf(int count, ...);
 
-	static string implode(const string &ss, const string &glue);
+	static string implode(const strings &ss, const string &glue);
 	string implode(const string &glue) const;
 };
 }//namespace atd

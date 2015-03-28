@@ -3,6 +3,6 @@
 using namespace atd;
 int main(int argc, char **argv)
 {
-	string s = string::format("%s", "hoge");
-	cout << s << endl;
+	string s = "123456";
+	cout << s.toint() << endl;
 }

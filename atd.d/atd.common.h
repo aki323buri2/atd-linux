@@ -9,6 +9,7 @@
 #include <map>
 
 #include <stdarg.h>
+#include <stdlib.h>
 
 typedef unsigned char uchar;
 typedef long long int int64;
