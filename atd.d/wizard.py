@@ -37,36 +37,57 @@ def guard(filename):
 #=====================================================
 ns = "atd"
 names = [
-	"common", 
 	"macro", 
+	"common", 
+	"object", 
 	"path", 
 	"datetime", 
 ]
 nocpp = [
-	"common", 
 	"macro"
+	"common", 
+]
+lock = [
+	"macro", 
+	"common", 
+	"object", 
 ]
 
 #=====================================================
 #= run()
 #=====================================================
 def run():
+	
+	#---------------------------------------------
+	makeheader("%s.h" %(ns), """\
+{s}\
+""".format(
+		s = "\n".join(["#include \"%s.%s.h\"" %(ns, n) for n in names])
+	))
+	#---------------------------------------------
+
 	for name in names:
+
+		if name in lock:
+			continue
+
 		headername = "%s.%s.h" % (ns, name)
 		cppname = None if name in nocpp else "%s.%s.cpp" % (ns, name)
 
-		#---------------------------------------------
-		makeheader("%s.h" %(ns), """\
-{s}\
-""".format(
-			s = "\n".join(["#include \"%s.%s.h\"" %(ns, n) for n in names])
-		))
-		#---------------------------------------------
 
 		#---------------------------------------------
 		makeheader(headername, """\
 #include "{ns}.h"
-""".format(ns = ns
+namespace {ns} {{;;
+//====================================================
+//= struct {ns}::{name}
+//====================================================
+struct {name} {base}
+{{
+}};
+}}//namespace {ns}\
+""".format(ns = ns, name = name
+			, base = "" if name == "object" else ": public object"
 		))
 		#---------------------------------------------
 		
@@ -74,7 +95,14 @@ def run():
 			continue
 		
 		#---------------------------------------------
-		makecpp(cppname, "")
+		makecpp(cppname, """\
+#include "{ns}.h"
+using namespace {ns};
+//====================================================
+//= struct {ns}::{name}
+//====================================================
+""".format(ns = ns, name = name
+		))
 		#---------------------------------------------
 
 #=====================================================
