@@ -37,8 +37,8 @@ struct objects : public object, public std::vector<object *>
 	objects &entry(object *o0, object *o1, object *o2, object *o3, object *o4, object *o5, object *o6, object *o7)							{ return entryf( 8, o0, o1, o2, o3, o4, o5, o6, o7); }
 	objects &entry(object *o0, object *o1, object *o2, object *o3, object *o4, object *o5, object *o6, object *o7, object *o8)				{ return entryf( 9, o0, o1, o2, o3, o4, o5, o6, o7, o8); }
 	objects &entry(object *o0, object *o1, object *o2, object *o3, object *o4, object *o5, object *o6, object *o7, object *o8, object *o9)	{ return entryf(10, o0, o1, o2, o3, o4, o5, o6, o7, o8, o9); }
-
 	objects &entryf(int count, ...);
+	
 	void destroy();
 };
 //====================================================

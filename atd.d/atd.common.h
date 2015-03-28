@@ -13,4 +13,8 @@
 typedef unsigned char uchar;
 typedef long long int int64;
 typedef unsigned int uint;
+
+using std::cin;
+using std::cout;
+using std::endl;
 #endif//__atd_common_h__

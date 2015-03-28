@@ -40,6 +40,7 @@ names = [
 	"macro", 
 	"common", 
 	"object", 
+	"string", 
 	"path", 
 	"datetime", 
 ]
@@ -51,6 +52,7 @@ lock = [
 	"macro", 
 	"common", 
 	"object", 
+	"string", 
 ]
 
 #=====================================================

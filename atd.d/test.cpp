@@ -1,8 +1,8 @@
 // test.cpp
-#include <iostream>
-using std::cout;
-using std::endl;
+#include "atd.h"
+using namespace atd;
 int main(int argc, char **argv)
 {
-	cout << "だいじょぶ？" << endl;
+	string s = string::format("%s", "hoge");
+	cout << s << endl;
 }
