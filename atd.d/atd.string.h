@@ -21,6 +21,9 @@ struct string : public object, public std::string
 
 	static string enclose(const string &s, const string &left, const string &right);
 	static strings explode(const string &s, const string &delimiter);
+	string enclose(const string &left, const string &right);
+	strings explode(const string &delimiter);
+
 
 	//toint(), tointbase64()における'base'が0の場合、
 	//Cの定数表記に従う。

@@ -27,9 +27,20 @@ string string::format(const char *format, ...)
 
 	return s.c_str();
 }
+string string::enclose(const string &left, const string &right)
+{
+	return enclose(*this, left, right);
+}
 string string::enclose(const string &s, const string &left, const string &right)
 {
 	return left + s + (right.length() ? right : left);
+}
+//====================================================
+//=　explode(join)
+//====================================================
+strings string::explode(const string &delimiter)
+{
+	return explode(*this, delimiter);
 }
 strings string::explode(const string &s, const string &delimiter)
 {
@@ -67,7 +78,7 @@ strings string::explode(const string &s, const string &delimiter)
 	return ss;
 }
 //====================================================
-//= 型変換
+//= 数値への変換
 //====================================================
 int string::toint(int base) const { return toint(*this, base); }
 int64 string::toint64(int base) const { return toint64(*this, base); }
@@ -99,6 +110,9 @@ strings &strings::entryf(int count, ...)
 
 	return *this;
 }
+//====================================================
+//= implode(separate)
+//====================================================
 string strings::implode(const strings &ss, const string &glue)
 {
 	string s;
