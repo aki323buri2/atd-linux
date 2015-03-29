@@ -7,4 +7,5 @@
 #include "atd.string.h"
 #include "atd.path.h"
 #include "atd.datetime.h"
+#include "atd.generic.h"
 #endif//__atd_h__

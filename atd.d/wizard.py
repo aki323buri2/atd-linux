@@ -43,16 +43,21 @@ names = [
 	"string", 
 	"path", 
 	"datetime", 
+	"generic", 
 ]
 nocpp = [
 	"macro"
 	"common", 
+	"generic", 
 ]
 lock = [
 	"macro", 
 	"common", 
 	"object", 
 	"string", 
+	"datetime", 
+	"generic"
+
 ]
 
 #=====================================================
