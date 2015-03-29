@@ -4,11 +4,22 @@ using namespace atd;
 //====================================================
 //= struct atd::datetime
 //====================================================
+datetime::datetime()
+: year(0)
+, mon(0)
+, day(0)
+, wday(0)
+, hour(0)
+, min(0)
+, sec(0)
+{
+	gettime();
+}
 datetime::datetime(
 	  int year
 	, int mon
 	, int day
-	, int wday
+//	, int wday
 	, int hour
 	, int min
 	, int sec
@@ -16,14 +27,12 @@ datetime::datetime(
 : year(year)
 , mon(mon)
 , day(day)
-, wday(wday)
+, wday(0)
 , hour(hour)
 , min(min)
 , sec(sec)
 {
-	time_t now = ::time(0);
-	struct tm *tm = ::localtime(&now);
-	fromtm(tm);
+	mktime();
 }
 struct tm datetime::totm() const
 {
@@ -87,7 +96,7 @@ string datetime::yobi(int wday)
 string datetime::strftime(const string &format) const
 {
 	struct tm tm = totm();
-	size_t size = format.size() + 0x100;
+	size_t size = format.size() + 0x100;//★べた書き
 	string s(size, 0);
 	::strftime(&s[0], s.size(), format.c_str(), &tm);
 	return s.c_str();

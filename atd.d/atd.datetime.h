@@ -16,14 +16,15 @@ struct datetime : public object
 	int min;
 	int sec;
 
+	datetime();
 	datetime(
- 		  int year = 0
-		, int mon = 0
-		, int day = 0
-		, int wday = 0
-		, int hour = 0
-		, int min = 0
-		, int sec = 0
+ 		  int year
+		, int mon
+		, int day
+//		, int wday
+		, int hour
+		, int min
+		, int sec
 	);
 
 	struct tm totm() const;
