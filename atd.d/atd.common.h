@@ -10,6 +10,8 @@
 
 #include <stdarg.h>
 #include <stdlib.h>
+#include <string.h>//for ::memcpy()
+#include <time.h>
 
 typedef unsigned char uchar;
 typedef long long int int64;
