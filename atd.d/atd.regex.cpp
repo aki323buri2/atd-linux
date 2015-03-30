@@ -4,6 +4,7 @@
 using namespace atd;
 //====================================================
 //= struct atd::regex::impl
+//= ** implイディオム！
 //====================================================
 struct regex::impl : public object
 {
@@ -24,11 +25,17 @@ struct regex::impl : public object
 	{
 		::regfree(&preg);
 	}
+	//================================================
+	//= 正規表現コンパイル
+	//================================================
 	bool compile(const string &pattern)
 	{
 		error = ::regcomp(&preg, pattern.c_str(), REG_EXTENDED | REG_NEWLINE);
 		return !error;
 	}
+	//================================================
+	//= 正規表現によるマッチング実行（グループ数を返す）
+	//================================================
 	int exec(const string &subject)
 	{
 		if (error) return false;//コンパイルに失敗している
@@ -41,6 +48,9 @@ struct regex::impl : public object
 
 		return nsub;
 	}
+	//================================================
+	//= 正規表現によるマッチングリスト作成
+	//================================================
 	bool match(const string &subject, strings &match)
 	{
 		match.clear();
@@ -64,6 +74,63 @@ struct regex::impl : public object
 		}
 
 		return true;
+	}
+	//================================================
+	//= 正規表現による置換
+	//================================================
+	string replace(const string &subject, const string &replace)
+	{
+		//マッチング実行（グループ数が返る）
+		int nsub = exec(subject); 
+		if (!nsub) return subject;
+
+		string s = subject;
+		strings groups;//グループマッチリスト
+		for (int i = 0; i < nsub; i++)
+		{
+			regmatch_t &regmatch = pmatch[i];
+			int so = regmatch.rm_so;
+			int eo = regmatch.rm_eo;
+			if (so >= 0 && eo >= 0)
+			{
+				if (i == 0)
+				{
+					s = ""
+						+ s.substr(0, so)
+						+ replace 
+						+ s.substr(eo)
+						;
+				}
+				else
+				{
+					groups.entry(subject.substr(so, (eo - so)));
+				}
+			}
+		}
+		//グループマッチ展開
+		if (groups.size())
+		{
+			for (strings::iterator b = groups.begin(), i = b, e = groups.end()
+				; i != e; ++i)
+			{
+				string &group = *i;
+				int index = (i - b) + 1;
+				string tar = string::format("$%d", index);
+				size_t find = s.find(tar);
+
+				if (find == string::npos) continue;
+
+				s.replace(find, tar.length(), group);
+
+			}
+		}
+		return s;
+	}
+	static string replace(const string &subject, const string &pattern, const string &replace)
+	{
+		regex re;
+		re.compile(pattern);
+		return re.replace(subject, replace);
 	}
 };
 //====================================================
@@ -90,4 +157,12 @@ strings regex::match(const string &subject)
 	strings match;
 	this->match(subject, match);
 	return match;
+}
+string regex::replace(const string &subject, const string &replace)
+{
+	return impl->replace(subject, replace);
+}
+string regex::replace(const string &subject, const string &pattern, const string &replace)
+{
+	return impl::replace(subject, pattern, replace);
 }

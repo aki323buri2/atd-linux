@@ -11,15 +11,18 @@ string path::dirname(const string &path)
 	return ::dirname(&s[0]);
 }
 //※<libgen.h>でbasenameを__xpg_basenameに#defineしている！！
-//  なので強引な解決策（なんか他にないのんか？）
+//  なので強引な解決策（なんか他にないのんか？）  
 #define __xpg_basename basename
 string path::basename(const string &path)
 #define basename __xpg_basename
 {
-	string s = path;
+	string s = path; 
+
+	//パスの最後に'/'があると正常に動かないバグを回避
 	if (s.endswith("/"))
 	{
-		s = s.substr(0, s.length()-1);
+		s = regex::replace(s, "/$", "");
 	}
+	
 	return ::basename(&s[0]);
 }
