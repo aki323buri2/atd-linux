@@ -55,7 +55,8 @@ lock = [
 	"macro", 
 	"common", 
 	"object", 
-	"string", 
+	"string",
+	"regex",  
 	"path", 
 	"datetime", 
 	"generic"

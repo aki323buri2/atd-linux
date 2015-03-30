@@ -9,5 +9,5 @@ void sleep(int milliseconds)
 }
 int main(int argc, char **argv)
 {
-	cout << path::exename() << endl;
+	notifyf("%s start ", app.path.c_str());
 } 
