@@ -96,6 +96,29 @@ double string::todouble(const string &s)
 	return ::strtod(s.c_str(), NULL);
 }
 //====================================================
+//= 文字列検索
+//====================================================
+bool string::startswith(const string &with) const
+{ 
+	return startswith(*this, with);
+}
+bool string::endswith(const string &with) const
+{
+	return endswith(*this, with);
+}
+bool string::startswith(const string &s, const string &with)
+{
+	if (!with.length()) return true;
+	if (!s.length()) return false;
+	return s.find(with, 0) == 0;
+}
+bool string::endswith(const string &s, const string &with)
+{
+	if (!with.length()) return true;
+	if (!s.length()) return false; 
+	return s.rfind(with, s.length() - 1) == s.length() - with.length();
+}
+//====================================================
 //= struct atd::strings
 //====================================================
 strings &strings::entryf(int count, ...)

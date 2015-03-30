@@ -37,6 +37,12 @@ struct string : public object, public std::string
 	int toint(int base = 0) const;
 	int64 toint64(int base = 0) const;
 	double todouble() const;
+
+	//文字列検索
+	bool startswith(const string &with) const;
+	bool endswith(const string &with) const;
+	static bool startswith(const string &s, const string &with);
+	static bool endswith(const string &s, const string &with);
 };
 //====================================================
 //= struct atd::strings

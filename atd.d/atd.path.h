@@ -8,6 +8,8 @@ namespace atd {;;
 //====================================================
 struct path : public object
 {
+	static string dirname(const string &path);
+	static string basename(const string &path);
 };
 }//namespace atd
 #endif//__atd_path_h__

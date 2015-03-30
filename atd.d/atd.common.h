@@ -16,6 +16,7 @@
 typedef unsigned char uchar;
 typedef long long int int64;
 typedef unsigned int uint;
+typedef unsigned char uchar;
 
 using std::cin;
 using std::cout;
