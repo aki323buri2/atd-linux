@@ -15,7 +15,7 @@ string path::basename(const string &path)
 #define basename __xpg_basename
 {
 	string s = path;
-	if (s.length() && s[s.length()-1] == '/')
+	if (s.endswith("/"))
 	{
 		s = s.substr(0, s.length()-1);
 	}

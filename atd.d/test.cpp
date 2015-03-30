@@ -9,7 +9,15 @@ void sleep(int milliseconds)
 }
 int main(int argc, char **argv)
 {
-	string path = "/ほげ/ふがs/";
-	cout << path.endswith("s/") << endl;
+	string subject = "/hoge/ﾌｶﾞ表/";
+	string pattern = "/ﾌｶﾞ";
+	regex re;
+	re.compile(pattern);
+	strings match = re.match(subject);
 
+	for (strings::iterator i = match.begin(), e = match.end()
+		; i != e; ++i)
+	{
+		cout << "match[" << (i - match.begin()) << "] : " << *i << endl;
+	}
 } 

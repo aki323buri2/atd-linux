@@ -5,6 +5,7 @@
 #include "atd.common.h"
 #include "atd.object.h"
 #include "atd.string.h"
+#include "atd.regex.h"
 #include "atd.path.h"
 #include "atd.datetime.h"
 #include "atd.generic.h"
