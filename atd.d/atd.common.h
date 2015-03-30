@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <string.h>//for ::memcpy()
 #include <time.h>
+#include <unistd.h>//for ::getcwd()
 
 typedef unsigned char uchar;
 typedef long long int int64;

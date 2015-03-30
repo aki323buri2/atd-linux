@@ -9,7 +9,5 @@ void sleep(int milliseconds)
 }
 int main(int argc, char **argv)
 {
-	string path = "/hoge/ﾌｶﾞ表/"; 
-	cout << path::dirname(path) << endl;
-	cout << path::basename(path) << endl;
+	cout << path::exename() << endl;
 } 
