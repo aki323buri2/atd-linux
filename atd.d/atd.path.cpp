@@ -10,6 +10,8 @@ string path::dirname(const string &path)
 	string s = path;
 	return ::dirname(&s[0]);
 }
+//※<libgen.h>でbasenameを__xpg_basenameに#defineしている！！
+//  なので強引な解決策（なんか他にないのんか？）
 #define __xpg_basename basename
 string path::basename(const string &path)
 #define basename __xpg_basename
