@@ -19,6 +19,9 @@ struct path : public object
 	//拡張子の変更
 	static string remove_extension(const string &path);
 	static string rename_extension(const string &path, const string &extension);
+
+	//ファイルの有無
+	static bool exists(const string &path, int mode = F_OK | R_OK);
 };
 }//namespace atd
 #endif//__atd_path_h__

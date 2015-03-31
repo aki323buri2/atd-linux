@@ -63,3 +63,8 @@ string path::rename_extension(const string &path, const string &extension)
 {
 	return remove_extension(path) + extension;
 }
+//ファイルの有無
+bool path::exists(const string &path, int mode)
+{
+	return ::access(path.c_str(), mode) == 0;
+}
