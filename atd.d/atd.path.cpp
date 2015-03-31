@@ -51,3 +51,15 @@ string path::exename()
 	::readlink("/proc/self/exe", &s[0], s.size());
 	return s.c_str();
 }
+//拡張子の消去
+string path::remove_extension(const string &path)
+{
+	string s = regex::replace(path, "/$", "");
+	size_t pos = s.find_last_of(".");
+	return s.substr(0, pos);
+}
+//拡張子の変更
+string path::rename_extension(const string &path, const string &extension)
+{
+	return remove_extension(path) + extension;
+}

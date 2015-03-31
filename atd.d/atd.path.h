@@ -15,6 +15,10 @@ struct path : public object
 	static string cwd();
 	//実行ファイルのフルパス取得
 	static string exename();
+
+	//拡張子の変更
+	static string remove_extension(const string &path);
+	static string rename_extension(const string &path, const string &extension);
 };
 }//namespace atd
 #endif//__atd_path_h__
