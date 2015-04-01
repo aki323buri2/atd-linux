@@ -36,27 +36,49 @@ int frame(int argc, char **argv)
 	notify ("");
 	return r;
 }
+
+#include <getopt.h>
 int run(int argc, char **argv) 
 {
-	generic::properties pp;
-	generic::property::primitive pri[20] = {
-		{ "hoge1", "fuga1" }, 
-		{ "hoge2", "fuga2" }, 
-		{ "hoge3", "fuga3" }, 
-		{ "hoge4", "fuga4" }, 
+	string sentence, suffix;
+	struct option options[] = {
+		{"morning"	, no_argument		, NULL, 'm'}, 
+		{"evening"	, no_argument		, NULL, 'e'}, 
+		{"suffex"	, required_argument	, NULL, 's'}, 
+		{0}, 
 	};
-	pp.load_primitive(&pri[0]);
+	while (true)
+	{
+		int oi;
+		int opt = ::getopt_long(argc, argv, "mes:", options, &oi);
+		if (opt == -1) break;
 
-	pp.json_decode(
-		"{"
-		"  \"jhoge1\": \"jfuga1\""
-		", \"jhoge2\": \"jfuga2\""
-		", \"jhoge3\": \"jfuga3\""
-		", \"jhoge4\": \"jfuga4\""
-		"}"
-	);
+		switch (opt)
+		{
+		case 'm': 
+			sentence = "good morning";
+		case 'e': 
+			sentence = "good evening";
 
-	pp.demo(notify);
+			cout << "option : " << (char)opt << endl;
+			break;
+		case 's':
+			suffix = optarg;
+			cout << "option : " << (char)opt << " = " << optarg << endl;
+			break;
+		case '?':
+			//解析できないオプションが見つかった場合は「?」を返す
+			//オプション引数が不足している場合も「?」を返す
+			cout << "!! Unknown or required argument option : " << (char)optopt << endl;
+			cout << "Usage: COMMAND [-m | -e] [-s suffix] name ..." << endl;
+			return 1;
+		}
+	}
+
+	for (int i = optind; i < argc; i++)
+	{
+		cout << sentence << ", " << argv[i] << suffix << "!" << endl;
+	}
 
 	return 0;
 } 
