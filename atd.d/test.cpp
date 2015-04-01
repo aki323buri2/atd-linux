@@ -38,12 +38,25 @@ int frame(int argc, char **argv)
 }
 int run(int argc, char **argv) 
 {
-	cout << "*> app.path    : " << app.path << endl;
-	cout << "*> app.logfile : " << app.logfile << endl;
+	generic::properties pp;
+	generic::property::primitive pri[20] = {
+		{ "hoge1", "fuga1" }, 
+		{ "hoge2", "fuga2" }, 
+		{ "hoge3", "fuga3" }, 
+		{ "hoge4", "fuga4" }, 
+	};
+	pp.load_primitive(&pri[0]);
 
-	string path = "hoge/fuga"; 
-	path = "/home/gcc/atd.d/bin/test.log";
-	bool exists = path::exists(path);
-	cout << path << " : " << exists << endl;
+	pp.json_decode(
+		"{"
+		"  \"jhoge1\": \"jfuga1\""
+		", \"jhoge2\": \"jfuga2\""
+		", \"jhoge3\": \"jfuga3\""
+		", \"jhoge4\": \"jfuga4\""
+		"}"
+	);
+
+	pp.demo(notify);
+
 	return 0;
 } 

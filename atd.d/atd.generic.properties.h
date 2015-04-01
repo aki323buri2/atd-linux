@@ -75,7 +75,7 @@ struct properties : public object, public property::hash::owner_type
 	string json_encode() const;
 
 	//原始構造体をロード
-	void load_primitive(struct primiteve *primitive);
+	void load_primitive(struct property::primitive *primitive);
 
 	//マージ
 	void supply  (const properties &with);//隙間を埋める

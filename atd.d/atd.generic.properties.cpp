@@ -148,3 +148,41 @@ string properties::json_encode() const
 	json_encode(oss);
 	return oss.str();
 }
+//====================================================
+//= load primitive structure
+//====================================================
+void properties::load_primitive(property::primitive *primitive)
+{
+	for (property::primitive *p = primitive; p->name; p++)
+	{
+		value_of(p->name) = p->value;
+	}
+}
+//====================================================
+//= supply （隙間を埋める）
+//====================================================
+void properties::supply(const properties &with)
+{
+	for (const_iterator i = with.begin(), e = with.end()
+		; i != e; ++i)
+	{
+		const string &name = i->name;
+		const string &value = i->value;
+		if (property::isnull(value)) continue;
+		if (has_key(name) && !property::isnull(at(name))) continue;
+		value_of(name) = value;
+	}
+}
+//====================================================
+//= owerwrap （上書きする）
+//====================================================
+void properties::overwrap(const properties &with)
+{
+	for (const_iterator i = with.begin(), e = with.end()
+		; i != e; ++i)
+	{
+		const string &name = i->name;
+		const string &value = i->value;
+		value_of(name) = value;
+	}
+}
