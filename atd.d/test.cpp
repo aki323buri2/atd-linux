@@ -37,48 +37,58 @@ int frame(int argc, char **argv)
 	return r;
 }
 
-#include <getopt.h>
-int run(int argc, char **argv) 
+int run(int argc, char **argv)
 {
-	string sentence, suffix;
-	struct option options[] = {
-		{"morning"	, no_argument		, NULL, 'm'}, 
-		{"evening"	, no_argument		, NULL, 'e'}, 
-		{"suffex"	, required_argument	, NULL, 's'}, 
-		{0}, 
+	struct commandline commandline;
+	struct { string &ebc, &fdg, &json; } arg = 
+	{
+		commandline.value_of("ebc"), 
+		commandline.value_of("fdg"), 
+		commandline.value_of("json"), 
 	};
+	commandline.get(argc, argv);
+
+	generic::properties backup;
+	backup.value_of("ebc") = "../ebc/TMASAPF.RDMLIB.FDG.txt";
+
+	commandline.supply(backup);
+
+	commandline.demo(notify);
+
+	return 0;
+}
+//====================================================
+//= parse commandline
+//====================================================
+#include <getopt.h>
+void commandline::get(int argc, char **argv)
+{
+	struct option options[] =
+	{
+		{"ebc", required_argument, NULL, 'e'}, 
+		{"fdg", required_argument, NULL, 'd'}, 
+		{"json", required_argument, NULL, 'j'}, 
+		{0}
+	};
+	std::map<int, string> map;
+	for (struct option *o = options; o->name; o++)
+	{
+		map[o->val] = o->name;
+	}
+
 	while (true)
 	{
 		int oi;
-		int opt = ::getopt_long(argc, argv, "mes:", options, &oi);
+		int opt = ::getopt_long(argc, argv, "e:d:j:", options, &oi);
 		if (opt == -1) break;
 
 		switch (opt)
 		{
-		case 'm': 
-			sentence = "good morning";
-		case 'e': 
-			sentence = "good evening";
-
-			cout << "option : " << (char)opt << endl;
-			break;
-		case 's':
-			suffix = optarg;
-			cout << "option : " << (char)opt << " = " << optarg << endl;
-			break;
 		case '?':
-			//解析できないオプションが見つかった場合は「?」を返す
-			//オプション引数が不足している場合も「?」を返す
-			cout << "!! Unknown or required argument option : " << (char)optopt << endl;
-			cout << "Usage: COMMAND [-m | -e] [-s suffix] name ..." << endl;
-			return 1;
+			break;
+		default: 
+			value_of(map[opt]) = optarg;
+			break;
 		}
 	}
-
-	for (int i = optind; i < argc; i++)
-	{
-		cout << sentence << ", " << argv[i] << suffix << "!" << endl;
-	}
-
-	return 0;
-} 
+}

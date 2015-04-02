@@ -26,4 +26,18 @@ static generic::notifyf notifyf = notify;
 int main(int argc, char **argv);
 int frame(int argc, char **argv);
 int run(int argc, char **argv);
+//====================================================
+//====================================================
+//====================================================
+struct commandline : public generic::properties
+{
+	commandline() 
+	{
+	}
+	commandline(int argc, char **argv)
+	{
+		get(argc, argv);
+	}
+	void get(int argc, char **argv);
+};
 #endif//__common_h__
