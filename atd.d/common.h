@@ -27,17 +27,38 @@ int main(int argc, char **argv);
 int frame(int argc, char **argv);
 int run(int argc, char **argv);
 //====================================================
-//====================================================
+//= struct commandline
 //====================================================
 struct commandline : public generic::properties
 {
-	commandline() 
+	bool showhelp;
+
+	commandline()
+	: showhelp(false)
 	{
 	}
 	commandline(int argc, char **argv)
+	: showhelp(false)
 	{
-		get(argc, argv);
+		apply(argc, argv);
 	}
-	void get(int argc, char **argv);
+	void apply(int argc, char **argv);
 };
+//====================================================
+//= fcheck
+//====================================================
+struct fcheck : public object
+{
+	static bool check(const string &path)
+	{
+		bool exists = path::exists(path, F_OK);
+		notifyf("> %s : %s"
+			, exists ? " OK " : "(NG)"
+			, path.c_str()
+		);
+
+		return exists;
+	}
+};
+//====================================================
 #endif//__common_h__

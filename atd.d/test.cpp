@@ -1,6 +1,5 @@
 // test.cpp
 #include "common.h"
-
 void sleep(int milliseconds)
 {
 	int base = 1000; 
@@ -46,14 +45,42 @@ int run(int argc, char **argv)
 		commandline.value_of("fdg"), 
 		commandline.value_of("json"), 
 	};
-	commandline.get(argc, argv);
+	string home = path::dirname(app.dirname);
 
-	generic::properties backup;
-	backup.value_of("ebc") = "../ebc/TMASAPF.RDMLIB.FDG.txt";
+	commandline.value_of("ebc") = home + "/ebc/TMASAPF.RDMLIB";
+	commandline.value_of("fdg") = home + "/fdg/TMASAPF.RDMLIB.FDG.txt";
+	commandline.apply(argc, argv);
 
-	commandline.supply(backup);
+	if (commandline.showhelp)
+	{
+		cerr << 
+			"" CRLF
+			"Usage: " << app.basename << ":"
+			" [-e --ebc=<path>]" 
+			" [-d --fdg=<path>]" 
+			" [-j --json=<path>]" CRLF
+			CRLF
+			"Options: " CRLF
+			"  -e --ebc=<path>    : EBCDICファイルのパス" CRLF
+			"  -d --fdg=<path>    : FDG列定義ファイルのパス" CRLF
+			"  -j --json=<path>   : 変換後JSONファイルのパス" CRLF
+			<< endl;
+		return 0;
+	}
 
-	commandline.demo(notify);
+	
+
+	notifyf("arg.ebc  = %s", arg.ebc.c_str());
+	notifyf("arg.fdg  = %s", arg.fdg.c_str());
+	notifyf("arg.json = %s", arg.json.c_str());
+
+
+	bool ok = true;
+	ok = fcheck::check(arg.ebc) && ok;
+	ok = fcheck::check(arg.fdg) && ok;
+	ok = fcheck::check(arg.json) && ok;
+
+	cout << ok << endl;
 
 	return 0;
 }
@@ -61,13 +88,14 @@ int run(int argc, char **argv)
 //= parse commandline
 //====================================================
 #include <getopt.h>
-void commandline::get(int argc, char **argv)
+void commandline::apply(int argc, char **argv)
 {
 	struct option options[] =
 	{
-		{"ebc", required_argument, NULL, 'e'}, 
-		{"fdg", required_argument, NULL, 'd'}, 
-		{"json", required_argument, NULL, 'j'}, 
+		{"help", no_argument		, NULL, 'h'}, 
+		{"ebc" , required_argument	, NULL, 'e'}, 
+		{"fdg" , required_argument	, NULL, 'd'}, 
+		{"json", required_argument	, NULL, 'j'}, 
 		{0}
 	};
 	std::map<int, string> map;
@@ -79,12 +107,15 @@ void commandline::get(int argc, char **argv)
 	while (true)
 	{
 		int oi;
-		int opt = ::getopt_long(argc, argv, "e:d:j:", options, &oi);
+		int opt = ::getopt_long(argc, argv, "he:d:j:", options, &oi);
 		if (opt == -1) break;
 
 		switch (opt)
 		{
 		case '?':
+			break;
+		case 'h':
+			showhelp = true;
 			break;
 		default: 
 			value_of(map[opt]) = optarg;

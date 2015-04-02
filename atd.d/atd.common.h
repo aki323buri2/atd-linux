@@ -14,6 +14,7 @@
 #include <string.h>//for ::memcpy()
 #include <time.h>
 #include <unistd.h>//for ::getcwd()
+#include <limits.h>//for PATH_MAX
 
 typedef unsigned char uchar;
 typedef long long int int64;
@@ -22,5 +23,6 @@ typedef unsigned char uchar;
 
 using std::cin;
 using std::cout;
+using std::cerr;
 using std::endl;
 #endif//__atd_common_h__
