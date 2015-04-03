@@ -64,7 +64,7 @@ int run(int argc, char **argv)
 			"  -d --fdg=<path>    : FDG列定義ファイルのパス" CRLF
 			"  -j --json=<path>   : 変換後JSONファイルのパス" CRLF
 			<< endl;
-		return 0;
+		return 1;
 	}
 
 	//FDGパス自動認識
@@ -78,17 +78,13 @@ int run(int argc, char **argv)
 	}
 
 	//出力ディレクトリの作成
-	string dir = app.dirname + "/tran";
-	path::mkdir(dir);
-	arg.json = dir + "/" + path::basename(arg.ebc) + ".tran.json";
-	
-
-	notifyf("arg.ebc  = %s", arg.ebc.c_str());
-	notifyf("arg.fdg  = %s", arg.fdg.c_str());
-	notifyf("arg.json = %s", arg.json.c_str());
-
+	struct { string dir; } tran;
+	tran.dir = app.dirname + "/tran";
+	path::mkdir(tran.dir);
+	arg.json = tran.dir + "/" + path::basename(arg.ebc) + ".tran.json";
 
 	bool ok = true;
+	ok = fcheck::check(tran.dir) && ok;
 	ok = fcheck::check(arg.ebc) && ok;
 	ok = fcheck::check(arg.fdg) && ok;
 	ok = fcheck::check(arg.json) && ok;
