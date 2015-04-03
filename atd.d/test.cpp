@@ -67,20 +67,20 @@ int run(int argc, char **argv)
 		return 0;
 	}
 
-	string path = arg.ebc;
-
-	strings dirs;
-	dirs.entry(app.dirname);
-	dirs.entry(path::dirname(app.dirname) + "/fdg");
-
-	string name = path::basename(path);
-	
-
-	for (strings::iterator i = dirs.begin(), e = dirs.end()
-		; i != e; ++i)
+	//FDGパス自動認識
+	if (!arg.fdg.length())
 	{
-		const string &dir = *i;
+		string path = arg.ebc;
+		arg.fdg = search_fdg(
+			  path::basename(path)	//対象ファイルのファイル名
+			, path::dirname(path)	//対象ファイルがあるフォルダ
+		);
 	}
+
+	//出力ディレクトリの作成
+	string dir = app.dirname + "/tran";
+	path::mkdir(dir);
+	arg.json = dir + "/" + path::basename(arg.ebc) + ".tran.json";
 	
 
 	notifyf("arg.ebc  = %s", arg.ebc.c_str());

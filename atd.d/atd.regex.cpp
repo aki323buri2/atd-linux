@@ -187,5 +187,5 @@ strings regex::match(const string &pattern, const string &subject)
 }
 string regex::replace(const string &pattern, const string &subject, const string &replace)
 {
-	return impl::replace(subject, pattern, replace);
+	return impl::replace(pattern, subject, replace);
 }

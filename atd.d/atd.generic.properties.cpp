@@ -131,7 +131,7 @@ void properties::json_encode(std::ostream &os) const
 }
 void properties::json_decode(const string &json)
 {
-	if (path::exists(json, F_OK | R_OK))
+	if (path::exists(json))
 	{
 		std::ifstream ifs(json.c_str());
 		json_decode(ifs);

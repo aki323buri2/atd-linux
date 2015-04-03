@@ -2,6 +2,7 @@
 #include "atd.h"
 using namespace atd;
 #include <libgen.h>//for ::dirname(), ::basename()
+#include <sys/stat.h>	//for ::mkdir()
 //====================================================
 //= struct atd::path
 //====================================================
@@ -54,7 +55,7 @@ string path::exename()
 //拡張子の消去
 string path::remove_extension(const string &path)
 {
-	string s = regex::replace(path, "/$", "");
+	string s = regex::replace("/$", path, "");
 	size_t pos = s.find_last_of(".");
 	return s.substr(0, pos);
 }
@@ -63,8 +64,60 @@ string path::rename_extension(const string &path, const string &extension)
 {
 	return remove_extension(path) + extension;
 }
-//ファイルの有無
-bool path::exists(const string &path, int mode)
+//ファイルもしくはディレクトリの有無
+bool path::exists(const string &path)
 {
-	return ::access(path.c_str(), mode) == 0;
+	struct stat st = {0};
+	return ::stat(path.c_str(), &st) == 0;
+}
+// S_IFMT	0170000	ファイル種別を示すビット領域を表すビットマスク
+//----------------------------------------------------
+// S_IFSOCK	0140000	ソケット
+// S_IFLNK	0120000	シンボリックリンク
+// S_IFREG	0100000	通常のファイル
+// S_IFBLK	0060000	ブロックデバイス
+// S_IFDIR	0040000	ディレクトリ
+// S_IFCHR	0020000	キャラクターデバイス
+// S_IFIFO	0010000	FIFO
+//ファイルかどうか
+bool path::isfile(const string &path)
+{
+	struct stat st = {0};
+	if (::stat(path.c_str(), &st) != 0) return false;
+	return (st.st_mode & S_IFMT) == S_IFREG;
+}
+//ディレクトリかどうか
+bool path::isdir(const string &path)
+{
+	struct stat st = {0};
+	if (::stat(path.c_str(), &st) != 0) return false;
+	return (st.st_mode & S_IFMT) == S_IFDIR;
+}
+//ディレクトリかどうか
+bool path::islink(const string &path)
+{
+	struct stat st = {0};
+	if (::stat(path.c_str(), &st) != 0) return false;
+	return (st.st_mode & S_IFLNK) == S_IFDIR;
+}
+//ディレクトリの作成
+bool path::mkdir(const string &path, int mode)
+{
+	if (isdir(path)) return true;
+	
+	string s = regex::replace("^\\/", path, "");
+	strings dirs = s.explode("/");
+	string dir = "";
+	int r = 0;
+	for (strings::iterator i = dirs.begin(), e = dirs.end()
+		; i != e; ++i)
+	{
+		dir += "/";
+		dir += *i;
+		if (isdir(dir)) continue;
+		r = ::mkdir(dir.c_str(), mode);
+		cout << r << " : " << dir << endl;
+	}
+	//最終的に成功したかどうか
+	return r == 0;
 }

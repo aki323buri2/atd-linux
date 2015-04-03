@@ -20,8 +20,17 @@ struct path : public object
 	static string remove_extension(const string &path);
 	static string rename_extension(const string &path, const string &extension);
 
-	//ファイルの有無
-	static bool exists(const string &path, int mode = F_OK | R_OK);
+	//ファイルもしくはディレクトリの有無
+	static bool exists(const string &path);
+	//ファイルかどうか
+	static bool isfile(const string &path);
+	//ディレクトリかどうか
+	static bool isdir(const string &path);
+	//シンボリックリンクかどうか
+	static bool islink(const string &path);
+
+	//ディレクトリの作成
+	static bool mkdir(const string &path, int mode = 0777);
 };
 }//namespace atd
 #endif//__atd_path_h__

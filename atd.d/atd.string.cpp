@@ -27,7 +27,7 @@ string string::format(const char *format, ...)
 
 	return s.c_str();
 }
-string string::enclose(const string &left, const string &right)
+string string::enclose(const string &left, const string &right) const
 {
 	return enclose(*this, left, right);
 }
@@ -38,7 +38,7 @@ string string::enclose(const string &s, const string &left, const string &right)
 //====================================================
 //=　explode(join)
 //====================================================
-strings string::explode(const string &delimiter)
+strings string::explode(const string &delimiter) const
 {
 	return explode(*this, delimiter);
 }

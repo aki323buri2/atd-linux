@@ -47,6 +47,43 @@ struct commandline : public generic::properties
 //====================================================
 //=　search fdg path
 //====================================================
+string search_fdg(const string &name, const string &root)
+{	
+	//検索対象ディレクトリリスト
+	strings dirs(root);
+	dirs.entry(path::dirname(root) + "/fdg");//../fdg
+
+	//ファイル名の検索対象リスト
+	strings names(name);
+	//"XXXX.(ライブラリ名)の場合、ライブラリ名を除いた名前も検索対象にする
+	string strip = regex::replace("\\.[^\\.]+$", name, "");
+	if (strip.length() < name.length()) 
+	{
+		names.entry(strip);
+	}
+
+	//ディレクトリリスト x ファイル名リストで検索
+	struct { bool check; string path; } hit = { false, "" };
+	for (strings::const_iterator i = dirs.begin(), e = dirs.end()
+		; i != e; ++i)
+	{
+		const string &dir = *i;
+		for (strings::const_iterator i = names.begin(), e = names.end()
+			; i != e; ++i)
+		{
+			const string &name = *i;
+			string path = dir + "/" + name + ".FDG.txt"; //★
+			if (path::exists(path))
+			{
+				hit.check = true;
+				hit.path = path;
+				break;
+			}
+		}
+		if (hit.check) break;
+	}
+	return hit.path;
+}
 
 //====================================================
 //= fcheck
@@ -55,7 +92,7 @@ struct fcheck : public object
 {
 	static bool check(const string &path)
 	{
-		bool exists = path::exists(path, F_OK);
+		bool exists = path::exists(path);
 		notifyf("> %s : %s"
 			, exists ? " OK " : "(NG)"
 			, path.c_str()
