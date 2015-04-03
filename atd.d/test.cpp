@@ -48,7 +48,6 @@ int run(int argc, char **argv)
 	string home = path::dirname(app.dirname);
 
 	commandline.value_of("ebc") = home + "/ebc/TMASAPF.RDMLIB";
-	commandline.value_of("fdg") = home + "/fdg/TMASAPF.RDMLIB.FDG.txt";
 	commandline.apply(argc, argv);
 
 	if (commandline.showhelp)
@@ -68,6 +67,20 @@ int run(int argc, char **argv)
 		return 0;
 	}
 
+	string path = arg.ebc;
+
+	strings dirs;
+	dirs.entry(app.dirname);
+	dirs.entry(path::dirname(app.dirname) + "/fdg");
+
+	string name = path::basename(path);
+	
+
+	for (strings::iterator i = dirs.begin(), e = dirs.end()
+		; i != e; ++i)
+	{
+		const string &dir = *i;
+	}
 	
 
 	notifyf("arg.ebc  = %s", arg.ebc.c_str());

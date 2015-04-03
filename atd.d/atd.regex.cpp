@@ -126,7 +126,19 @@ struct regex::impl : public object
 		}
 		return s;
 	}
-	static string replace(const string &subject, const string &pattern, const string &replace)
+	static bool match(const string &pattern, const string &subject, strings &match)
+	{
+		regex re;
+		re.compile(pattern);
+		return re.match(subject, match);
+	}
+	static strings match(const string &pattern, const string &subject)
+	{
+		regex re;
+		re.compile(pattern);
+		return re.match(subject);
+	}
+	static string replace(const string &pattern, const string &subject, const string &replace)
 	{
 		regex re;
 		re.compile(pattern);
@@ -162,7 +174,18 @@ string regex::replace(const string &subject, const string &replace)
 {
 	return impl->replace(subject, replace);
 }
-string regex::replace(const string &subject, const string &pattern, const string &replace)
+//----------------------------------------------------
+//- static版
+//----------------------------------------------------
+bool regex::match(const string &pattern, const string &subject, strings &match)
+{
+	return impl::match(pattern, subject, match);
+}
+strings regex::match(const string &pattern, const string &subject)
+{
+	return impl::match(pattern, subject);
+}
+string regex::replace(const string &pattern, const string &subject, const string &replace)
 {
 	return impl::replace(subject, pattern, replace);
 }

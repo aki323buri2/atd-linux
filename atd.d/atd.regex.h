@@ -13,9 +13,11 @@ struct regex : public object
 	bool compile(const string &pattern);
 	bool match(const string &subject, strings &match);
 	strings match(const string &subject);
+	static bool match(const string &pattern, const string &subject, strings & match);
+	static strings match(const string &pattern, const string &subject);
 
 	string replace(const string &subject, const string &replace);
-	static string replace(const string &subject, const string &pattern, const string &replace);
+	static string replace(const string &pattern, const string &subject, const string &replace);
 private:
 	struct impl;
 	struct impl *impl;
