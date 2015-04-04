@@ -110,45 +110,40 @@ int run(int argc, char **argv)
 
 	return 0;
 }
-#include <iconv.h>
-#include <errno.h>
+
 void test(const string &text)
 {
 	notify("######################################################");
 	string path = text;
 
-	// iconv_t ic = ::iconv_open("UTF-8", "SJIS");
-	iconv_t ic = ::iconv_open("SJIS", "EBCDIC-JP-KANA");
+	std::ofstream ofs((app.dirname + "/check.txt").c_str(), std::ios::out);
+
+	int rsize = 1000;//★
+
+	string::encoder ebc2sjis("SJIS-WIN", "EBCDIC-JP-KANA");
+	string::encoder sjis2utf8("UTF-8", "SJIS-WIN");
 
 
-	std::ifstream ifs(path.c_str(), std::ios::in);
-	string line;
-	string conv(0x100, 0);
-	while (ifs && std::getline(ifs, line))
+	std::ifstream ifs(path.c_str(), std::ios::in | std::ios::binary);
+	string line(rsize, 0);
+
+	int cc = 10;
+	int rr = 0;
+	while (ifs && ifs.read(&line[0], line.size()))
 	{
+		string pic = line.substr(45, 20);
+		string sjis = ebc2sjis.encode(pic);
+		string utf8 = sjis2utf8.encode(sjis);
 
-		conv.assign(line.size() * 2, 0);
-
-		struct { char *line, *conv; } pt = { &line[0], &conv[0] };
-		struct { size_t line, conv; } sz = { line.size(), conv.size() };
-
-		sz.line = 20;
-		sz.conv = 20;
-		int r = ::iconv(ic
-			, &pt.line, &sz.line
-			, &pt.conv, &sz.conv
-		);
-		int e = errno;
-		cout << "e:" << e;
-		cout << "r:" << r;
-		cout << " - " << conv.c_str();
-		cout << endl;
-
+		if (--cc > 0) 
+		{
+			cout << utf8 << endl;
+		}
+		ofs << sjis << endl;
+		rr++;
 	}
-	::iconv_close(ic);
-	cout << "E2BIG : " << E2BIG << endl;
-	cout << "EILSEQ : " << EILSEQ << endl;
-	cout << "EINVAL : " << EINVAL << endl;
+	cout << rr << endl;
+	
 
 	notify("######################################################");
 }

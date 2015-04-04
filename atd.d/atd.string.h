@@ -81,8 +81,11 @@ struct strings : public object, public std::vector<string>
 //====================================================
 struct string::encoder : public object
 {
-	encoder(const string &to, const string &from);
+	encoder(const string &encto, const string &encfrom);
 	~encoder();
+
+	string encode(const string &from) const;
+	bool encode(const string &from, string &to) const;
 
 private:
 	//implイディオム
