@@ -38,6 +38,8 @@ int frame(int argc, char **argv)
 
 int run(int argc, char **argv)
 {
+	string home = path::dirname(app.dirname);
+
 	struct commandline commandline;
 	struct { string &ebc, &fdg, &json; } arg = 
 	{
@@ -45,11 +47,13 @@ int run(int argc, char **argv)
 		commandline.value_of("fdg"), 
 		commandline.value_of("json"), 
 	};
-	string home = path::dirname(app.dirname);
+	//コマンドライン引数解析
+	notify("... option parsing ...");
 
 	commandline.value_of("ebc") = home + "/ebc/TMASAPF.RDMLIB";
 	commandline.apply(argc, argv);
 
+	//Usage!
 	if (commandline.showhelp)
 	{
 		cerr << 
@@ -57,24 +61,24 @@ int run(int argc, char **argv)
 			"Usage: " << app.basename << ":"
 			" [-e --ebc=<path>]" 
 			" [-d --fdg=<path>]" 
-			" [-j --json=<path>]" CRLF
 			CRLF
 			"Options: " CRLF
 			"  -e --ebc=<path>    : EBCDICファイルのパス" CRLF
 			"  -d --fdg=<path>    : FDG列定義ファイルのパス" CRLF
-			"  -j --json=<path>   : 変換後JSONファイルのパス" CRLF
 			<< endl;
 		return 1;
 	}
 
-	//FDGパス自動認識
+	//FDGパスが指定されていない場合は自動認識
 	if (!arg.fdg.length())
 	{
 		string path = arg.ebc;
-		arg.fdg = search_fdg(
-			  path::basename(path)	//対象ファイルのファイル名
-			, path::dirname(path)	//対象ファイルがあるフォルダ
-		);
+		arg.fdg = search_fdg(path);
+	}
+	if (!arg.fdg.length())
+	{
+		//仮（エラー表示用といってもよい）
+		arg.fdg = arg.ebc + ".FDG.txt";
 	}
 
 	//出力ディレクトリの作成
@@ -83,15 +87,70 @@ int run(int argc, char **argv)
 	path::mkdir(tran.dir);
 	arg.json = tran.dir + "/" + path::basename(arg.ebc) + ".tran.json";
 
+	//コマンドライン引数のディスプレイ
+	notify("---- command line options    ----");
+	commandline.demo(notify, 7);
+
+	//必須ファイルorディレクトリの存在チェック
+	notify("---- file or directory check ----");
 	bool ok = true;
-	ok = fcheck::check(tran.dir) && ok;
 	ok = fcheck::check(arg.ebc) && ok;
 	ok = fcheck::check(arg.fdg) && ok;
-	ok = fcheck::check(arg.json) && ok;
+	ok = fcheck::check(tran.dir) && ok;
 
-	cout << ok << endl;
+	if (!ok)
+	{
+		notify("!!!! 必要なファイルもしくはディレクトリが存在しません !!!!");
+		return 1;
+	}
+
+	// test(arg.fdg);
+	test(arg.ebc);
+	
 
 	return 0;
+}
+#include <iconv.h>
+#include <errno.h>
+void test(const string &text)
+{
+	notify("######################################################");
+	string path = text;
+
+	// iconv_t ic = ::iconv_open("UTF-8", "SJIS");
+	iconv_t ic = ::iconv_open("SJIS", "EBCDIC-JP-KANA");
+
+
+	std::ifstream ifs(path.c_str(), std::ios::in);
+	string line;
+	string conv(0x100, 0);
+	while (ifs && std::getline(ifs, line))
+	{
+
+		conv.assign(line.size() * 2, 0);
+
+		struct { char *line, *conv; } pt = { &line[0], &conv[0] };
+		struct { size_t line, conv; } sz = { line.size(), conv.size() };
+
+		sz.line = 20;
+		sz.conv = 20;
+		int r = ::iconv(ic
+			, &pt.line, &sz.line
+			, &pt.conv, &sz.conv
+		);
+		int e = errno;
+		cout << "e:" << e;
+		cout << "r:" << r;
+		cout << " - " << conv.c_str();
+		cout << endl;
+
+	}
+	::iconv_close(ic);
+	cout << "E2BIG : " << E2BIG << endl;
+	cout << "EILSEQ : " << EILSEQ << endl;
+	cout << "EINVAL : " << EINVAL << endl;
+
+	notify("######################################################");
 }
 //====================================================
 //= parse commandline
@@ -104,7 +163,6 @@ void commandline::apply(int argc, char **argv)
 		{"help", no_argument		, NULL, 'h'}, 
 		{"ebc" , required_argument	, NULL, 'e'}, 
 		{"fdg" , required_argument	, NULL, 'd'}, 
-		{"json", required_argument	, NULL, 'j'}, 
 		{0}
 	};
 	std::map<int, string> map;
@@ -113,16 +171,20 @@ void commandline::apply(int argc, char **argv)
 		map[o->val] = o->name;
 	}
 
+	showhelp = false;
+
 	while (true)
 	{
 		int oi;
-		int opt = ::getopt_long(argc, argv, "he:d:j:", options, &oi);
-		if (opt == -1) break;
+		int opt = ::getopt_long(argc, argv, "he:d:", options, &oi);
+		if (opt == -1)
+		{
+			break;
+		}
 
 		switch (opt)
 		{
 		case '?':
-			break;
 		case 'h':
 			showhelp = true;
 			break;

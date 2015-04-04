@@ -93,3 +93,6 @@
                         02  BZEIKU               PIC 9(1).
                         02  BHSU                 PIC 9(1).
                         02  UHSU                 PIC 9(1).
+iconv() 関数は、ある文字エンコーディングの文字シーケンス列を別の文字
+ エンコーディングの文字シーケンスに変換する。cd 引き数は変換ディスク リプタ
+ (conversion descriptor) であり、以前は iconv_open(3) を呼び

@@ -10,6 +10,9 @@ struct strings;
 //====================================================
 struct string : public object, public std::string
 {
+	//文字コードコンタバータ
+	struct encoder;
+
 	string();
 	string(const char *that);
 	string(const std::string &that);
@@ -72,6 +75,20 @@ struct strings : public object, public std::vector<string>
 
 	static string implode(const strings &ss, const string &glue);
 	string implode(const string &glue) const;
+};
+//====================================================
+//= struct string::encoder
+//====================================================
+struct string::encoder : public object
+{
+	encoder(const string &to, const string &from);
+	~encoder();
+
+private:
+	//implイディオム
+	struct impl;
+	struct impl *impl;
+	encoder(const encoder &that);
 };
 }//namespace atd
 #endif//__atd_string_h__
