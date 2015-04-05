@@ -12,6 +12,7 @@ struct string : public object, public std::string
 {
 	//文字コードコンタバータ
 	struct encoder;
+	struct ebcdic;
 
 	string();
 	string(const char *that);
@@ -87,11 +88,33 @@ struct string::encoder : public object
 	string encode(const string &from) const;
 	bool encode(const string &from, string &to) const;
 
+	uchar encode_byte(uchar from) const;
+	ushort encode_word(ushort from) const;
+
 private:
 	//implイディオム
 	struct impl;
 	struct impl *impl;
 	encoder(const encoder &that);
+};
+//====================================================
+//= struct string::ebcdic
+//====================================================
+struct string::ebcdic : public object
+{
+	encoder jis2sjis;
+	std::map<ushort, ushort> jef2jis;
+
+	ebcdic();
+	~ebcdic();
+
+	uchar ebc2sjis_byte(ushort ebc) const;
+	string ebc2sjis(const string &ebc) const;
+	char *ebc2sjis(const string &ebc, char *ptr, int size) const;
+	ushort jef2sjis_word(ushort jef) const;
+	string jef2sjis(const string &jef) const;
+	char *jef2sjis(const string &jef, char *ptr, int size) const;
+
 };
 }//namespace atd
 #endif//__atd_string_h__

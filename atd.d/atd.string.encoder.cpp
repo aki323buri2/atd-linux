@@ -14,6 +14,8 @@ struct string::encoder::impl : public object
 	string encfrom;
 	impl(const string &encto, const string &encfrom);
 	~impl();
+	uchar encode_byte(uchar from) const;
+	ushort encode_word(ushort from) const;
 	string encode(const string &s) const;
 	bool encode(const string &from, string &to) const;
 };
@@ -27,6 +29,14 @@ string::encoder::encoder(const string &encto, const string &encfrom)
 string::encoder::~encoder()
 {
 	delete impl;
+}
+uchar string::encoder::encode_byte(uchar from) const
+{
+	return impl->encode_byte(from);
+}
+ushort string::encoder::encode_word(ushort from) const
+{
+	return impl->encode_word(from);
 }
 string string::encoder::encode(const string &from) const 
 {
@@ -49,6 +59,30 @@ string::encoder::impl::~impl()
 {
 	::iconv_close(ic);
 }
+uchar string::encoder::impl::encode_byte(uchar from) const
+{
+	uchar to = 0;
+	struct { char *from, *to; } pt = { (char *)&from, (char *)&to };
+	struct { size_t from, to; } sz = { sizeof(from), sizeof(to) };
+	int r = ::iconv(ic
+		, &pt.from, &sz.from
+		, &pt.to  , &sz.to  
+	);
+	int e = errno;
+	return r == 0 ? to : 0;
+}
+ushort string::encoder::impl::encode_word(ushort from) const
+{
+	ushort to = 0;
+	struct { char *from, *to; } pt = { (char *)&from, (char *)&to };
+	struct { size_t from, to; } sz = { sizeof(from), sizeof(to) };
+	int r = ::iconv(ic
+		, &pt.from, &sz.from
+		, &pt.to  , &sz.to  
+	);
+	int e = errno;
+	return r == 0 ? to : 0;
+}
 string string::encoder::impl::encode(const string &from) const
 {
 	string to;
@@ -57,7 +91,7 @@ string string::encoder::impl::encode(const string &from) const
 }
 bool string::encoder::impl::encode(const string &from, string &to) const
 {
-	size_t todo = from.size() * 2;//★
+	size_t todo = from.size() * 3;//★
 	if (to.size() < todo) to.assign(todo, 0);
 	
 	struct { char *from, *to; } pt = { (char *)&from[0], &to[0] };
