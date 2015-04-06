@@ -72,8 +72,7 @@ int run(int argc, char **argv)
 	//FDGパスが指定されていない場合は自動認識
 	if (!arg.fdg.length())
 	{
-		string path = arg.ebc;
-		arg.fdg = search_fdg(path);
+		arg.fdg = search_fdg(arg.ebc);
 	}
 	if (!arg.fdg.length())
 	{
@@ -85,6 +84,8 @@ int run(int argc, char **argv)
 	struct { string dir; } tran;
 	tran.dir = app.dirname + "/tran";
 	path::mkdir(tran.dir);
+
+	//出力JSONのパス
 	arg.json = tran.dir + "/" + path::basename(arg.ebc) + ".tran.json";
 
 	//コマンドライン引数のディスプレイ
@@ -105,7 +106,7 @@ int run(int argc, char **argv)
 	}
 
 	// test(arg.fdg);
-	test(arg.ebc);
+	test(arg.fdg);
 	
 
 	return 0;
@@ -116,40 +117,64 @@ void test(const string &text)
 	notify("######################################################");
 	string path = text;
 
-	std::ofstream ofs((app.dirname + "/check.txt").c_str(), std::ios::out);
+	string pattern = 
+		"^([0-9]{6})?"		//DUETで作ったファイルの行番号
+		"\\s*([0-9]{2})" 	//LV
+		"\\s+([^ ]+)"		//識別名
+		"("
+			"\\s+PIC\\s+"
+			"(S?)"						//符号付き？
+			"(9|X|N)"					//タイプ
+			"\\(([0-9]+)\\)"			//桁数
+			"(V9\\(([0-9]+)\\)|V(9+))?"	//小数点以下
+		")?"
+		"(\\s+(PACKED-DECIMAL|COMP-3))?"	//パック項目
+		"(\\s+OCCURS\\s+([0-9]+))?"			//OCCURS
+		;
+	regex re;
+	re.compile(pattern);
 
-	int rsize = 1000;//★
+	//ファイル読む
+	std::ifstream ifs(path.c_str(), std::ios::in);
+	string::encoder enc("UTF-8", "SJIS-WIN");
 
-	string::ebcdic ebcenc;;
-	string::encoder sjis2utf8("UTF-8", "SJIS-WIN");
-
-	std::ifstream ifs(path.c_str(), std::ios::in | std::ios::binary);
-	string line(rsize, 0);
-
-	int cc = 10;
-	int rr = 0;
-	while (ifs && ifs.read(&line[0], line.size()))
+	string line;
+	while (ifs && std::getline(ifs, line))
 	{
-		int st, sz;
-		st =  0; sz =  5;
-		st = 45; sz = 30;
-		st = 95, sz = 10;
-		st = 75; sz = 20;
-		st =  5; sz= 40;
-		string pic = line.substr(st, sz);
-		string sjis = ebcenc.ebc2sjis(pic);
+		strings match = re.match(line);
+		if (match.size() <= 1) continue;
 
+		int lv		= match[ 2].toint();
+		string name	= match[ 3];
+		bool sig	= match[ 5].length();
+		string type	= match[ 6];
+		int left	= match[ 7].toint();
+		int right	= 0;
+		bool pack	= match[11].length();
+		int occurs	= match[14].toint();
 
-		sjis = ebcenc.jef2sjis(pic);
-		string utf8 = sjis2utf8.encode(sjis);
-
-		if (--cc > 0) 
+		string s = match[8];
+		string n = match[9];
+		if (s.find('(') != string::npos)
 		{
-			cout << utf8 << endl;
+			//V99...
+			right = n.length();
 		}
-		rr++;
+		else
+		{
+			//V9(NN)
+			right = n.toint();
+		}
+
+		cout << string::format(
+			"%02d %-10s %1s %-10s %-10s"
+			, lv, name.c_str(), type.c_str()
+			, left ? string::format("(%3d-%d)", left, right).c_str() : ""
+			, occurs ? string::format("OCCURS %2d", occurs).c_str() : ""
+			) << endl;
+
+		
 	}
-	cout << rr << endl;
 	
 
 	notify("######################################################");
