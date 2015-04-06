@@ -15,18 +15,23 @@ struct table
 //====================================================
 string::ebcdic::ebcdic()
 {
-	table::jef2jisextendmap(jef2jis);//JEF漢字テーブル拡張
+	//JEF漢字テーブル拡張
+	table::jef2jisextendmap(jef2jis);
 }
 string::ebcdic::~ebcdic()
 {
 }
+//----------------------------------------------------
+//- JIS漢字 (ISO-2022-JP) >> SJIS (WORD単位)
+//----------------------------------------------------
 ushort string::ebcdic::jis2sjis(ushort jis) 
 {
 	uchar h = (jis >> 8) & 0xff;//high byte
 	uchar l = (jis >> 0) & 0xff;//low  byte
 
 	//------------------------------------------------
-	//★パクッた！> http://sound.jp/otaq/tohoho/wwwkanji.htm
+	//★アルゴリズムパクッた！
+	//  > http://sound.jp/otaq/tohoho/wwwkanji.htm
 	uchar &c1 = h;
 	uchar &c2 = l;
 
@@ -46,17 +51,22 @@ ushort string::ebcdic::jis2sjis(ushort jis)
 
 	return ((h & 0xff) << 8) | (l & 0xff);
 }
-uchar string::ebcdic::ebc2sjis_byte(ushort ebc) const
+//----------------------------------------------------
+//- EBDCID >> SJIS (BYTE単位)
+//----------------------------------------------------
+uchar string::ebcdic::ebc2sjis_byte(ushort ebc)
 {
 	return table::ebc2sjis[ebc];
 }
-string string::ebcdic::ebc2sjis(const string &ebc) const
+//----------------------------------------------------
+//- EBDCID >> SJIS
+//----------------------------------------------------
+string string::ebcdic::ebc2sjis(const string &ebc)
 {
 	string s(ebc.size(), 0);
-	ebc2sjis(ebc, &s[0], s.size());
-	return s.c_str();
+	return ebc2sjis(ebc, &s[0], s.size());
 }
-char *string::ebcdic::ebc2sjis(const string &ebc, char *ptr, int size) const
+char *string::ebcdic::ebc2sjis(const string &ebc, char *ptr, int size)
 {
 	int p = 0;
 	for (string::const_iterator i = ebc.begin(), e = ebc.end()
@@ -68,7 +78,10 @@ char *string::ebcdic::ebc2sjis(const string &ebc, char *ptr, int size) const
 	return ptr;
 
 }
-ushort string::ebcdic::jef2sjis_word(ushort jef) const
+//----------------------------------------------------
+//- JEF漢字 >> SJIS　(WORD単位）
+//----------------------------------------------------
+ushort string::ebcdic::jef2sjis_word(ushort jef)
 {
 	//拡張漢字を検索
 	typedef std::map<ushort, ushort> map_t;
@@ -82,26 +95,29 @@ ushort string::ebcdic::jef2sjis_word(ushort jef) const
 		: i->second		//JEF拡張漢字
 	);
 }
-string string::ebcdic::jef2sjis(const string &jef) const
+//----------------------------------------------------
+//- JEF漢字 >> SJIS
+//----------------------------------------------------
+string string::ebcdic::jef2sjis(const string &jef)
 {
 	string sjis(jef.size(), 0);
 	return jef2sjis(jef, &sjis[0], sjis.size());
 }
-char *string::ebcdic::jef2sjis(const string &jef, char *ptr, int size) const
+char *string::ebcdic::jef2sjis(const string &jef, char *ptr, int size)
 {
 
-	for (int i = 0; i < size; i++)
+	for (int i = 0; i < size; i += 2/*★*/)
 	{
 		uchar h = (uchar)jef[i + 0]	& 0xff;//high word
 		uchar l = (uchar)jef[i + 1]	& 0xff;//low  word
+
+		//word単位で変換する
 		ushort word = ((h << 8) | (l & 0xff)) & 0xffff;
 		ushort conv = jef2sjis_word(word);
 
+		//出力ポインタへ書き込む
 		*(ptr + i + 0) = (conv >> 8) & 0xff;
 		*(ptr + i + 1) = (conv >> 0) & 0xff;
-
-		//２バイトずつ
-		i++;
 	}
 	return ptr;
 }
@@ -165,6 +181,7 @@ void table::jef2jisextendmap(std::map<ushort, ushort> &map)
 				jef = word;
 				continue;
 			}
+			else
 			{
 				jis = word;
 				if (jef && jis)

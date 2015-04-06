@@ -85,11 +85,11 @@ struct string::encoder : public object
 	encoder(const string &encto, const string &encfrom);
 	~encoder();
 
-	string encode(const string &from) const;
-	bool encode(const string &from, string &to) const;
+	string encode(const string &from);
+	bool encode(const string &from, string &to);
 
-	uchar encode_byte(uchar from) const;
-	ushort encode_word(ushort from) const;
+	uchar encode_byte(uchar from);
+	ushort encode_word(ushort from);
 
 private:
 	//implイディオム
@@ -107,14 +107,15 @@ struct string::ebcdic : public object
 	ebcdic();
 	~ebcdic();
 
+	//JIS (ISO-2022-JP) >> SJIS
 	static ushort jis2sjis(ushort jis);
 
-	uchar ebc2sjis_byte(ushort ebc) const;
-	string ebc2sjis(const string &ebc) const;
-	char *ebc2sjis(const string &ebc, char *ptr, int size) const;
-	ushort jef2sjis_word(ushort jef) const;
-	string jef2sjis(const string &jef) const;
-	char *jef2sjis(const string &jef, char *ptr, int size) const;
+	uchar ebc2sjis_byte(ushort ebc);
+	string ebc2sjis(const string &ebc);
+	char *ebc2sjis(const string &ebc, char *ptr, int size);
+	ushort jef2sjis_word(ushort jef);
+	string jef2sjis(const string &jef);
+	char *jef2sjis(const string &jef, char *ptr, int size);
 
 };
 }//namespace atd
