@@ -110,6 +110,72 @@ char *string::ebcdic::jef2sjis(const string &jef, char *ptr, int size) const
 //====================================================
 void table::jef2jisextendmap(std::map<ushort, ushort> &map)
 {
+	//正規表現パターン文字列生成
+	strings ss;
+	const int cols = 8;//★
+	for (int i = 0; i < cols; i++)
+	{
+		ss.entry(
+			"("
+			"([0-9|a-z|A-Z]{1,4})\\s?:\\s?"
+			"([0-9|a-z|A-Z]{1,4})\\s?,?\\s?"
+			")"
+		);
+	}
+	string pattern = "\\s*" + ss[0] + ss.implode("?") + "?";
+	
+	//正規表現コンパイル
+	regex re;
+	re.compile(pattern);
+
+	//変換テーブル記述からロード
+	const char **pp = table::jef2jisextend;
+	for (; *pp; pp++)
+	{
+		//１行分を正規表現マッチ
+		string line = *pp;
+		strings match = re.match(line);
+		if (!match.size()) continue;
+
+		//マッチング結果を解析
+		ushort jef = 0, jis = 0;
+		for (strings::iterator b = match.begin(), i = b, e = match.end()
+			; i != e; ++i)
+		{
+			//[0]-(C2B7:4237,C2BD:423D,C2CD:424D,C2E3:4263) - X 処理しない
+			//[1]-(C2B7:4237,)	X 処理しない
+			//[2]-(C2B7)		O 処理する
+			//[3]-(4237)		O 処理する
+			//[4]-(C2BD:423D,)	X 処理しない
+			//[5]-(C2BD)		O 処理する
+			//[6]-(423D)		O 処理する
+			// ...
+			int index = i - b;
+			if (index == 0) continue;
+			index -= 1;
+			index %= 3;
+			if (index == 0) continue;
+
+			//16進文字列を数値化
+			ushort word = ::strtol(i->c_str(), 0, 16);
+
+			//マップへの登録
+			if (index == 1)
+			{
+				jef = word;
+				continue;
+			}
+			{
+				jis = word;
+				if (jef && jis)
+				{
+					map[jef] = jis;//★登録！
+				}
+			}
+		}
+
+	}
+
 }
 //====================================================
 //= 変換テーブルの実体
