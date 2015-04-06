@@ -102,11 +102,12 @@ private:
 //====================================================
 struct string::ebcdic : public object
 {
-	encoder jis2sjis;
 	std::map<ushort, ushort> jef2jis;
 
 	ebcdic();
 	~ebcdic();
+
+	static ushort jis2sjis(ushort jis);
 
 	uchar ebc2sjis_byte(ushort ebc) const;
 	string ebc2sjis(const string &ebc) const;

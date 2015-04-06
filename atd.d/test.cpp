@@ -120,7 +120,7 @@ void test(const string &text)
 
 	int rsize = 1000;//★
 
-	string::ebcdic ebc2sjis;
+	string::ebcdic ebcenc;;
 	string::encoder sjis2utf8("UTF-8", "SJIS-WIN");
 
 	std::ifstream ifs(path.c_str(), std::ios::in | std::ios::binary);
@@ -131,18 +131,22 @@ void test(const string &text)
 	while (ifs && ifs.read(&line[0], line.size()))
 	{
 		int st, sz;
-		st = 0; sz = 5;
+		st =  0; sz =  5;
 		st = 45; sz = 30;
 		st = 95, sz = 10;
+		st = 75; sz = 20;
+		st =  5; sz= 40;
 		string pic = line.substr(st, sz);
-		string sjis = ebc2sjis.ebc2sjis(pic);
+		string sjis = ebcenc.ebc2sjis(pic);
+
+
+		sjis = ebcenc.jef2sjis(pic);
 		string utf8 = sjis2utf8.encode(sjis);
 
 		if (--cc > 0) 
 		{
 			cout << utf8 << endl;
 		}
-		ofs << sjis << endl;
 		rr++;
 	}
 	cout << rr << endl;

@@ -14,12 +14,37 @@ struct table
 //= struct atd::string::ebcdic
 //====================================================
 string::ebcdic::ebcdic()
-: jis2sjis("SJIS-WIN", "ISO-2022-JP")//JIS漢字＞SJISコンバータ
 {
 	table::jef2jisextendmap(jef2jis);//JEF漢字テーブル拡張
 }
 string::ebcdic::~ebcdic()
 {
+}
+ushort string::ebcdic::jis2sjis(ushort jis) 
+{
+	uchar h = (jis >> 8) & 0xff;//high byte
+	uchar l = (jis >> 0) & 0xff;//low  byte
+
+	//------------------------------------------------
+	//★パクッた！> http://sound.jp/otaq/tohoho/wwwkanji.htm
+	uchar &c1 = h;
+	uchar &c2 = l;
+
+	if (c1 % 2)
+	{
+		c1 = ((c1 + 1) / 2) + 0x70;
+		c2 += 0x1f;
+	}
+	else
+	{
+		c1 = (c1 / 2) + 0x70;
+		c2 += 0x7d;
+	}
+    if (c1 >= 0xa0) { c1 += 0x40; }
+    if (c2 >= 0x7f) { c2 += 1; }
+	//------------------------------------------------
+
+	return ((h & 0xff) << 8) | (l & 0xff);
 }
 uchar string::ebcdic::ebc2sjis_byte(ushort ebc) const
 {
@@ -45,11 +70,17 @@ char *string::ebcdic::ebc2sjis(const string &ebc, char *ptr, int size) const
 }
 ushort string::ebcdic::jef2sjis_word(ushort jef) const
 {
-	const std::map<ushort, ushort> &map = jef2jis;
-	std::map<ushort, ushort>::const_iterator i = map.find(jef);
-	bool find = (i == map.end());
+	//拡張漢字を検索
+	typedef std::map<ushort, ushort> map_t;
+	const map_t &map = jef2jis;
+	map_t::const_iterator i = map.find(jef);
 
-	return jis2sjis.encode_word(find ? jef - 0x8080 : i->second);
+	//JIS漢字＞SJIS
+	return jis2sjis(
+		  i == map.end()
+		? jef - 0x8080 	//標準JEF漢字 = JIS漢字+0x8080
+		: i->second		//JEF拡張漢字
+	);
 }
 string string::ebcdic::jef2sjis(const string &jef) const
 {
@@ -61,11 +92,15 @@ char *string::ebcdic::jef2sjis(const string &jef, char *ptr, int size) const
 
 	for (int i = 0; i < size; i++)
 	{
-		uchar high = (uchar)jef[i];
-		uchar low  = (uchar)jef[i + 1];
-		ushort word = (high << 8) | (low);
+		uchar h = (uchar)jef[i + 0]	& 0xff;//high word
+		uchar l = (uchar)jef[i + 1]	& 0xff;//low  word
+		ushort word = ((h << 8) | (l & 0xff)) & 0xffff;
 		ushort conv = jef2sjis_word(word);
-		*((ushort *)(ptr + i)) = conv;
+
+		*(ptr + i + 0) = (conv >> 8) & 0xff;
+		*(ptr + i + 1) = (conv >> 0) & 0xff;
+
+		//２バイトずつ
 		i++;
 	}
 	return ptr;

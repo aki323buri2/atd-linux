@@ -81,6 +81,7 @@ ushort string::encoder::impl::encode_word(ushort from) const
 		, &pt.to  , &sz.to  
 	);
 	int e = errno;
+
 	return r == 0 ? to : 0;
 }
 string string::encoder::impl::encode(const string &from) const
