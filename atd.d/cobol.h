@@ -8,14 +8,18 @@ using namespace atd;
 //====================================================
 struct cobol : public object
 {
+	struct init;
 	struct ffd;
 	struct fdg;
+
 };
 //====================================================
 //= struct cobol::ffd
 //====================================================
 struct cobol::ffd : public object
 {
+	static regex re;
+	
 	int		lv		;
 	string	name	;
 	bool	sig		;
@@ -28,7 +32,6 @@ struct cobol::ffd : public object
 	int		offset	;
 	int		real	;
 
-	regex re;
 
 	ffd(
 		  int		lv		= 0
