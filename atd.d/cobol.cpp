@@ -83,21 +83,22 @@ bool cobol::ffd::parsecobol(const string &line)
 		//小数部記述に'('が無ければ V99
 		right = n.length();
 	}
+
+	//リアルサイズ計算
+	real = left + right;
+	if (type == "N")
+	{
+		//全角
+		real *= 2;
+	}
+	if (pack)
+	{
+		//パック項目
+		real = (real/2) + 1	;
+	}
+
 	//解析したよ！
 	return true;
-}
-string cobol::ffd::demo() const 
-{
-	std::ostringstream oss;
-	oss << string::format(
-			"%02d %-10s %1s%1s %-10s %-10s %-10s"
-			, lv, name.c_str(), type.c_str()
-			, sig ? "S" : ""
-			, left ? string::format("(%3d-%d)", left, right).c_str() : ""
-			, occurs ? string::format("OCCURS %2d", occurs).c_str() : ""
-			, pack ? "PACKED" : ""
-			);
-	return oss.str();
 }
 //====================================================
 //= struct cobol::fdg
@@ -106,12 +107,17 @@ cobol::fdg::fdg()
 : rsize(0)
 {
 }
+//入力ストリームからロード
 void cobol::fdg::loadcobol(std::istream &is, const string &encfrom)
 {
+	//文字コードエンコーダ
 	string encto = "UTF-8";
 	string::encoder *encoder = 
-		encto == encfrom ? 0 : new string::encoder(encfrom, encto)
+		encto == encfrom 
+		? 0 
+		: new string::encoder(encfrom, encto)
 		;
+	//ガベージコレクションもどき
 	managed::objects garbase(encoder);
 
 	string line;
@@ -124,6 +130,23 @@ void cobol::fdg::loadcobol(std::istream &is, const string &encfrom)
 
 		push_back(ffd);
 	}
+}
+//====================================================
+//= デモ表示
+//====================================================
+string cobol::ffd::demo() const 
+{
+	std::ostringstream oss;
+	oss << string::format(
+			"%02d %-10s %1s%1s %-10s %3d %-10s %-10s"
+			, lv, name.c_str(), type.c_str()
+			, sig ? "S" : ""
+			, left ? string::format("(%3d-%d)", left, right).c_str() : ""
+			, real
+			, occurs ? string::format("OCCURS %2d", occurs).c_str() : ""
+			, pack ? "PACKED" : ""
+			);
+	return oss.str();
 }
 void cobol::fdg::demo(const generic::notify &notify) const
 {
