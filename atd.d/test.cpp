@@ -120,18 +120,10 @@ void test(const string &text)
 
 	//ファイル読む
 	std::ifstream ifs(path.c_str(), std::ios::in);
-	string::encoder enc("UTF-8", "SJIS-WIN");
-
-	string line;
-	while (ifs && std::getline(ifs, line))
-	{
-		cobol::ffd ffd;
-		if (!ffd.parsecobol(enc.encode(line))) continue;
-
-		notify(ffd.demo());
-
-		
-	}
+	
+	cobol::fdg fdg;
+	fdg.loadcobol(ifs);
+	fdg.demo(notify);
 	
 
 	notify("######################################################");

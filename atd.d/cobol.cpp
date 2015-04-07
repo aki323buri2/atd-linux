@@ -25,11 +25,12 @@ cobol::init::init()
 		"(\\s+(OCCURS\\s+([0-9]+)))?"		//OCCURS
 	);
 }
+//初期化実行
+regex cobol::ffd::re;
+namespace { static cobol::init init; };
 //====================================================
 //= struct cobol::ffd
 //====================================================
-regex cobol::ffd::re;
-namespace { static cobol::init init; };//初期化！
 cobol::ffd::ffd(
 	  int		lv		//= 0
 	, string	name	//= ""
@@ -107,4 +108,27 @@ cobol::fdg::fdg()
 }
 void cobol::fdg::loadcobol(std::istream &is, const string &encfrom)
 {
+	string encto = "UTF-8";
+	string::encoder *encoder = 
+		encto == encfrom ? 0 : new string::encoder(encfrom, encto)
+		;
+	managed::objects garbase(encoder);
+
+	string line;
+	while (is && std::getline(is, line))
+	{
+		line = encoder ? encoder->encode(line) : line;
+
+		ffd ffd;
+		if (!ffd.parsecobol(line)) continue;
+
+		push_back(ffd);
+	}
+}
+void cobol::fdg::demo(const generic::notify &notify) const
+{
+	for (const_iterator i = begin(), e = end(); i != e; ++i)
+	{
+		notify(i->demo());
+	}
 }

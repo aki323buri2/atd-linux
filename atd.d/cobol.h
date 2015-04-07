@@ -9,9 +9,9 @@ using namespace atd;
 struct cobol : public object
 {
 	struct init;
+
 	struct ffd;
 	struct fdg;
-
 };
 //====================================================
 //= struct cobol::ffd
@@ -19,7 +19,7 @@ struct cobol : public object
 struct cobol::ffd : public object
 {
 	static regex re;
-	
+
 	int		lv		;
 	string	name	;
 	bool	sig		;
@@ -58,6 +58,8 @@ struct cobol::fdg : public object, public std::vector<ffd>
 
 	//COBOLイメージのロード
 	void loadcobol(std::istream &is, const string &encfrom = "SJIS-WIN");
+
+	void demo(const generic::notify &notify) const;
 };
 
 #endif//__cobol_h__
