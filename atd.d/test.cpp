@@ -112,27 +112,11 @@ int run(int argc, char **argv)
 	return 0;
 }
 
+#include "cobol.h"
 void test(const string &text)
 {
 	notify("######################################################");
 	string path = text;
-
-	string pattern = 
-		"^([0-9]{6})?"		//DUETで作ったファイルの行番号
-		"\\s*([0-9]{2})" 	//LV
-		"\\s+([^ ]+)"		//識別名
-		"("
-			"\\s+PIC\\s+"
-			"(S?)"						//符号付き？
-			"(9|X|N)"					//タイプ
-			"\\(([0-9]+)\\)"			//桁数
-			"(V9\\(([0-9]+)\\)|V(9+))?"	//小数点以下
-		")?"
-		"(\\s+(PACKED-DECIMAL|COMP-3))?"	//パック項目
-		"(\\s+OCCURS\\s+([0-9]+))?"			//OCCURS
-		;
-	regex re;
-	re.compile(pattern);
 
 	//ファイル読む
 	std::ifstream ifs(path.c_str(), std::ios::in);
@@ -141,37 +125,10 @@ void test(const string &text)
 	string line;
 	while (ifs && std::getline(ifs, line))
 	{
-		strings match = re.match(line);
-		if (match.size() <= 1) continue;
+		cobol::ffd ffd;
+		if (!ffd.parsecobol(enc.encode(line))) continue;
 
-		int lv		= match[ 2].toint();
-		string name	= match[ 3];
-		bool sig	= match[ 5].length();
-		string type	= match[ 6];
-		int left	= match[ 7].toint();
-		int right	= 0;
-		bool pack	= match[11].length();
-		int occurs	= match[14].toint();
-
-		string s = match[8];
-		string n = match[9];
-		if (s.find('(') != string::npos)
-		{
-			//V99...
-			right = n.length();
-		}
-		else
-		{
-			//V9(NN)
-			right = n.toint();
-		}
-
-		cout << string::format(
-			"%02d %-10s %1s %-10s %-10s"
-			, lv, name.c_str(), type.c_str()
-			, left ? string::format("(%3d-%d)", left, right).c_str() : ""
-			, occurs ? string::format("OCCURS %2d", occurs).c_str() : ""
-			) << endl;
+		notify(ffd.demo());
 
 		
 	}
