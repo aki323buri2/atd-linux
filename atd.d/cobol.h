@@ -49,10 +49,12 @@ struct cobol::ffd : public object
 //====================================================
 struct cobol::fdg : public object, public std::vector<ffd>
 {
+	int rsize;
+
 	fdg();
 
 	//COBOLイメージのロード
-	void loadcobol(std::istream &is);
+	void loadcobol(std::istream &is, const string &encfrom = "SJIS-WIN");
 };
 
 #endif//__cobol_h__

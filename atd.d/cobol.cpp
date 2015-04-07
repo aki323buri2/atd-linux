@@ -90,8 +90,9 @@ string cobol::ffd::demo() const
 //= struct cobol::fdg
 //====================================================
 cobol::fdg::fdg()
+: rsize(0)
 {
 }
-void cobol::fdg::loadcobol(std::istream &is)
+void cobol::fdg::loadcobol(std::istream &is, const string &encfrom)
 {
 }
