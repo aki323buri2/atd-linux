@@ -112,18 +112,12 @@ void cobol::fdg::loadcobol(std::istream &is, const string &encfrom)
 {
 	//文字コードエンコーダ
 	string encto = "UTF-8";
-	string::encoder *encoder = 
-		encto == encfrom 
-		? 0 
-		: new string::encoder(encfrom, encto)
-		;
-	//ガベージコレクションもどき
-	managed::objects garbase(encoder);
+	string::encoder encoder(encto, encfrom);
 
 	string line;
 	while (is && std::getline(is, line))
 	{
-		line = encoder ? encoder->encode(line) : line;
+		line = encoder.encode(line);
 
 		ffd ffd;
 		if (!ffd.parsecobol(line)) continue;

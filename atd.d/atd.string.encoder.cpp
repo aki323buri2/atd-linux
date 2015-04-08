@@ -63,7 +63,7 @@ string::encoder::impl::~impl()
 	::iconv_close(ic);
 }
 uchar string::encoder::impl::encode_byte(uchar from)
-{
+{	
 	uchar to = 0;
 	struct { char *from, *to; } pt = { (char *)&from, (char *)&to };
 	struct { size_t from, to; } sz = { sizeof(from), sizeof(to) };
@@ -75,7 +75,7 @@ uchar string::encoder::impl::encode_byte(uchar from)
 	return r == 0 ? to : 0;
 }
 ushort string::encoder::impl::encode_word(ushort from)
-{
+{	
 	ushort to = 0;
 	struct { char *from, *to; } pt = { (char *)&from, (char *)&to };
 	struct { size_t from, to; } sz = { sizeof(from), sizeof(to) };
@@ -88,7 +88,7 @@ ushort string::encoder::impl::encode_word(ushort from)
 	return r == 0 ? to : 0;
 }
 string string::encoder::impl::encode(const string &from)
-{
+{	
 	string to;
 	encode(from, to);
 	return to.c_str();
