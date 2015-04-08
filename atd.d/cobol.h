@@ -8,10 +8,15 @@ using namespace atd;
 //====================================================
 struct cobol : public object
 {
-	struct init;
-
 	struct ffd;
 	struct fdg;
+
+	//イニシャライザ
+	struct init
+	{
+		init();
+	};
+	static init init;
 };
 //====================================================
 //= struct cobol::ffd
@@ -31,6 +36,7 @@ struct cobol::ffd : public object
 
 	int		offset	;
 	int		real	;
+	int		sub		;
 
 
 	ffd(

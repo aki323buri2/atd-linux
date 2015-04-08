@@ -21,7 +21,8 @@ struct regex : public object
 private:
 	struct impl;
 	struct impl *impl;
-	regex(const string &regex); 
+	regex(const string &regex);
+	regex &operator = (const regex &); 
 };
 }//namespace atd
 #endif//__atd_regex_h__

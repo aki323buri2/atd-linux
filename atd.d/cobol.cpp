@@ -3,10 +3,9 @@
 //====================================================
 //= struct cobol
 //====================================================
-struct cobol::init : public object
-{
-	init();
-};
+//初期化実行
+struct regex cobol::ffd::re;
+struct cobol::init cobol::init;
 cobol::init::init()
 {
 	//正規表現コンパイル
@@ -22,12 +21,9 @@ cobol::init::init()
 			"(V9\\(([0-9]+)\\)|V(9+))?"		//小数部桁数
 		")?"
 		"(\\s+(PACKED-DECIMAL|COMP-3))?"	//パック項目？
-		"(\\s+(OCCURS\\s+([0-9]+)))?"		//OCCURS
+		"(\\s+OCCURS\\s+([0-9]+))?"			//OCCURS
 	);
 }
-//初期化実行
-regex cobol::ffd::re;
-namespace { static cobol::init init; };
 //====================================================
 //= struct cobol::ffd
 //====================================================
@@ -51,6 +47,7 @@ cobol::ffd::ffd(
 , occurs(occurs)
 , offset(0)
 , real(0)
+, sub(0)
 {
 }
 bool cobol::ffd::parsecobol(const string &line)
@@ -70,6 +67,10 @@ bool cobol::ffd::parsecobol(const string &line)
 	pack	= match[11].length();
 	occurs	= match[14].toint();
 
+	//文末ピリオド除去
+	name = regex::replace("\\..*", name, "");
+
+	//------------------------------------------------
 	//小数部桁数解析
 	string s = match[8];//"V9(2)" or "V99"
 	string n = match[9];//"2" or "99"
@@ -83,7 +84,7 @@ bool cobol::ffd::parsecobol(const string &line)
 		//小数部記述に'('が無ければ V99
 		right = n.length();
 	}
-
+	//------------------------------------------------
 	//リアルサイズ計算
 	real = left + right;
 	if (type == "N")
@@ -96,6 +97,7 @@ bool cobol::ffd::parsecobol(const string &line)
 		//パック項目
 		real = (real/2) + 1	;
 	}
+	//------------------------------------------------
 
 	//解析したよ！
 	return true;
@@ -114,13 +116,29 @@ void cobol::fdg::loadcobol(std::istream &is, const string &encfrom)
 	string encto = "UTF-8";
 	string::encoder encoder(encto, encfrom);
 
+	//プレ作成
+	fdg pre;
 	string line;
 	while (is && std::getline(is, line))
 	{
+		//文字コード変換
 		line = encoder.encode(line);
 
+		//１行解析
 		ffd ffd;
 		if (!ffd.parsecobol(line)) continue;
+
+		pre.push_back(ffd);
+	}
+
+	int offset = 0;
+	for (iterator b = pre.begin(), e = pre.end(), i = b
+		; i != e; ++i)
+	{
+		ffd &ffd = *i;
+
+		ffd.offset = offset;
+		offset += ffd.real;
 
 		push_back(ffd);
 	}
@@ -128,24 +146,42 @@ void cobol::fdg::loadcobol(std::istream &is, const string &encfrom)
 //====================================================
 //= デモ表示
 //====================================================
-string cobol::ffd::demo() const 
-{
-	std::ostringstream oss;
-	oss << string::format(
-			"%02d %-10s %1s%1s %-10s %3d %-10s %-10s"
-			, lv, name.c_str(), type.c_str()
-			, sig ? "S" : ""
-			, left ? string::format("(%3d-%d)", left, right).c_str() : ""
-			, real
-			, occurs ? string::format("OCCURS %2d", occurs).c_str() : ""
-			, pack ? "PACKED" : ""
-			);
-	return oss.str();
-}
 void cobol::fdg::demo(const generic::notify &notify) const
 {
 	for (const_iterator i = begin(), e = end(); i != e; ++i)
 	{
 		notify(i->demo());
 	}
+}
+string cobol::ffd::demo() const 
+{
+	return string::format("%02d %-10s"
+		" %4s"
+		"%-25s"
+		"%-10s"
+		, lv, name.c_str()
+		, (sub ? string::format("(%2d)", sub+1).c_str() : "")
+		, (!type.length() 
+			? "" 
+			: string::format(
+				" %1s%1s"
+				"(%2d)"
+				"%-5s"
+				" %-1s" 
+				" (%3d-%2d)"
+				, (sig ? "S" : ""), type.c_str()
+				, left
+				, (right ? string::format("V(%02d)", right).c_str() : "")
+				, (pack ? "P" : "")
+				, offset, real
+				).c_str()
+			)
+		, (!occurs 
+			? ""
+			: string::format(
+				"OCCURS %3d"
+				, occurs
+				).c_str()
+			)
+	);
 }
