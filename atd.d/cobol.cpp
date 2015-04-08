@@ -131,17 +131,58 @@ void cobol::fdg::loadcobol(std::istream &is, const string &encfrom)
 		pre.push_back(ffd);
 	}
 
-	int offset = 0;
-	for (iterator b = pre.begin(), e = pre.end(), i = b
-		; i != e; ++i)
+	pre.expandto(*this);
+}
+//OCCURS / 集団項目展開
+void cobol::fdg::expandto(fdg &that) const
+{
+	expandto(that, begin(), 0);
+}
+cobol::fdg::const_iterator cobol::fdg::expandto(
+	  fdg &that
+	, const_iterator where
+	, int sub
+) const
+{
+	struct ffd ffd = *where;//コピー
+
+	int &rsize		= that.rsize;
+	int  occurs		= ffd.occurs;
+	int &real		= ffd.real	;
+	int &offset		= ffd.offset;
+	string &name	= ffd.name	;
+	string &type	= ffd.type	;
+
+	ffd.sub = sub;
+
+	if (!occurs) occurs = 1;
+	
+	const_iterator cursor = where;
+
+	for (int i = 0; i < occurs; i++)
 	{
-		ffd &ffd = *i;
+		if (!type.length())
+		{
+			//集団項目
+			int lv = ffd.lv;
 
-		ffd.offset = offset;
-		offset += ffd.real;
-
-		push_back(ffd);
+			cursor = where;
+			++cursor;
+			while (cursor != that.end() && cursor->lv > lv)
+			{
+				cursor = expandto(that, cursor, i);
+			}
+		}
+		else 
+		{
+			offset = rsize;
+			rsize += real;
+			that.push_back(ffd);
+			cursor++;
+		}
 	}
+	return cursor;
+
 }
 //====================================================
 //= デモ表示
@@ -155,11 +196,14 @@ void cobol::fdg::demo(const generic::notify &notify) const
 }
 string cobol::ffd::demo() const 
 {
-	return string::format("%02d %-10s"
+	return string::format(
+		"%02d"
+		" %-10s"
 		" %4s"
 		"%-25s"
 		"%-10s"
-		, lv, name.c_str()
+		, lv
+		, name.c_str()
 		, (sub ? string::format("(%2d)", sub+1).c_str() : "")
 		, (!type.length() 
 			? "" 

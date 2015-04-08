@@ -123,8 +123,8 @@ void test(const string &text)
 	
 	cobol::fdg fdg;
 	fdg.loadcobol(ifs);
-	fdg.demo(notify);
 	
+	fdg.demo(notify);
 
 	notify("######################################################");
 }
