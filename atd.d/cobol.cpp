@@ -221,7 +221,9 @@ cobol::fdg::const_iterator cobol::fdg::expandto(
 	return cursor;
 
 }
-//プロパティリストのスケルトン作成
+//====================================================
+//= プロパティリストのスケルトン作成
+//====================================================
 generic::properties cobol::fdg::propskelton() const 
 {
 	generic::properties prop;
@@ -233,9 +235,14 @@ generic::properties cobol::fdg::propskelton() const
 		; i != e; ++i)
 	{
 		const ffd &ffd = *i;
-		const string id = ffd.id;
-		const string name = ffd.name;
-		prop.value_of(id) = name;
+
+		const string &id   = ffd.id;
+		const string &type = ffd.type;
+		const int real = ffd.real;
+		
+		//要素を追加して実バイトサイズ分の領域確保
+		string &value = prop.value_of(id);
+		value.assign(real, type[0]);
 	}
 
 	return prop;

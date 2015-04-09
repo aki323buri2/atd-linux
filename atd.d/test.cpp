@@ -152,14 +152,15 @@ void test(const string &text)
 
 	//サンプル出力
 	int pickupid = 0;
-	int pickupcount = 20;
+	int pickupcount = 20;//★
 	int64 pickupspan = lines / pickupcount;
 
-	generic::properties prop = fdg.propskelton();
-	generic::properties conv = prop;//コピー
+	//変換用スケルトン
+	generic::properties conv = fdg.propskelton();
+	conv.demo(notify);
 
-
-	notify(" PIC  Line  description");
+	notify ("");
+	notify (" PIC  Line  description");
 	notify ("-----------------------------------------------------------");
 
 	while (ifs && ifs.read(&line[0], line.size()))
