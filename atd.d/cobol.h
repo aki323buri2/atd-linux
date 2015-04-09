@@ -38,6 +38,7 @@ struct cobol::ffd : public object
 	int		real	;//実バイト数
 	int		sub		;//OCCURS繰り返しインデックス
 	int		subdn	;//OCCURS繰り返しインデックスの分母(dn: dinominatorの略）
+	string	id		;//重複しない名前
 
 
 	ffd(
@@ -52,6 +53,7 @@ struct cobol::ffd : public object
 	);
 	bool parsecobol(const string &line);
 
+
 	string demo() const;
 };
 //====================================================
@@ -61,7 +63,10 @@ struct cobol::fdg : public object, public std::vector<ffd>
 {
 	int rsize;//レコード長
 
+	std::map<string, int> names;//重複チェック用
+	
 	fdg();
+	void clear();
 
 	//COBOLイメージのロード
 	void loadcobol(std::istream &is, const string &encfrom = "SJIS-WIN");
@@ -69,6 +74,9 @@ struct cobol::fdg : public object, public std::vector<ffd>
 	//OCCURS展開
 	void expandto(fdg &that) const;
 	const_iterator expandto(fdg &that, const_iterator where, int sub, int subdn = 1) const;
+
+	//プロパティリストのスケルトン作成
+	generic::properties propskelton() const;
 
 	void demo(const generic::notify &notify) const;
 };

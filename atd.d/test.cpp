@@ -115,7 +115,7 @@ int run(int argc, char **argv)
 #include "cobol.h"
 void test(const string &text)
 {
-	notify("######################################################");
+	notify("##########################################################");
 	strings ss = text.explode(";");
 	struct { string fdg, ebc; } path;
 	path.fdg = ss[0];
@@ -127,14 +127,17 @@ void test(const string &text)
 	
 	cobol::fdg fdg;
 	fdg.loadcobol(ifs);
-	
 	fdg.demo(notify);
 
 	ifs.close();
 
 	//EBCファイルの情報取得
+	notify ("");
+	notifyf(">> EBCDICファイル名 : %s", path.ebc.c_str());
+	notify (">> -------------------------------------------------------");
 	path::fileinfo_t info = path::fileinfo(path.ebc);
 	info.demo(notify);
+	notify (">> -------------------------------------------------------");
 
 	//行数計算
 	string line(fdg.rsize, 0);
@@ -146,14 +149,36 @@ void test(const string &text)
 	//EBCファイルを読む
 	int64 done = 0;
 	ifs.open(path.ebc.c_str(), std::ios::in);
+
+	//サンプル出力
+	int pickupid = 0;
+	int pickupcount = 20;
+	int64 pickupspan = lines / pickupcount;
+
+	generic::properties prop = fdg.propskelton();
+	generic::properties conv = prop;//コピー
+
+
+	notify(" PIC  Line  description");
+	notify ("-----------------------------------------------------------");
+
 	while (ifs && ifs.read(&line[0], line.size()))
 	{
 		done++;
+		if (done % pickupspan == 1)//★
+		{
+			notifyf(
+				"%3d : "
+				"%5d XXXXXXX"
+				, ++pickupid
+				, done
+			);
+		}
 	}
 	notifyf(">> lines done  = %d", done);
 
 
-	notify("######################################################");
+	notify("##########################################################");
 }
 //====================================================
 //= parse commandline

@@ -110,6 +110,12 @@ cobol::fdg::fdg()
 : rsize(0)
 {
 }
+void cobol::fdg::clear()
+{
+	rsize = 0;
+	names.clear();
+	std::vector<ffd>::clear();
+}
 //入力ストリームからロード
 void cobol::fdg::loadcobol(std::istream &is, const string &encfrom)
 {
@@ -156,7 +162,6 @@ cobol::fdg::const_iterator cobol::fdg::expandto(
 	int  occurs		= ffd.occurs;
 	int &real		= ffd.real	;
 	int &offset		= ffd.offset;
-	string &name	= ffd.name	;
 	string &type	= ffd.type	;
 
 	//繰り返しのインデックス
@@ -194,14 +199,46 @@ cobol::fdg::const_iterator cobol::fdg::expandto(
 			//項目を追加
 			offset = rsize;
 			rsize += real;
-			that.push_back(ffd);
 
+			//名前の重複チェック
+			std::map<string, int> &names = that.names;
+			string &name = ffd.name;
+			string &id = ffd.id;
+			int &count = names[name];
+			count++;
+			//重複していた場合 id = "[名前]_[インクリメント番号]"
+			id = 
+				count > 1 
+				? string::format("%s_%d", name.c_str(), count)
+				: name 
+				;
+
+			that.push_back(ffd);
 			//イテレータを進める
 			++cursor;
 		}
 	}
 	return cursor;
 
+}
+//プロパティリストのスケルトン作成
+generic::properties cobol::fdg::propskelton() const 
+{
+	generic::properties prop;
+
+	//名前重複回避用
+	std::map<string, int> map;
+
+	for (const_iterator i = begin(), e = end()
+		; i != e; ++i)
+	{
+		const ffd &ffd = *i;
+		const string id = ffd.id;
+		const string name = ffd.name;
+		prop.value_of(id) = name;
+	}
+
+	return prop;
 }
 //====================================================
 //= デモ表示
