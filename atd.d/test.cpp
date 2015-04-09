@@ -129,6 +129,7 @@ void test(const string &text)
 	fdg.loadcobol(ifs);
 	fdg.demo(notify);
 
+
 	ifs.close();
 
 	//EBCファイルの情報取得
@@ -157,7 +158,7 @@ void test(const string &text)
 
 	//変換用スケルトン
 	generic::properties conv = fdg.propskelton();
-	conv.demo(notify);
+	// conv.demo(notify);
 
 	notify ("");
 	notify (" PIC  Line  description");
@@ -165,6 +166,9 @@ void test(const string &text)
 
 	while (ifs && ifs.read(&line[0], line.size()))
 	{
+		//変換実行！！
+		fdg.conv(line, conv);
+
 		done++;
 		if (done % pickupspan == 1)//★
 		{
@@ -174,6 +178,13 @@ void test(const string &text)
 				, ++pickupid
 				, done
 			);
+			//★★★★★★★★★★★★★★★★★★★★★★★★★★★
+			if (pickupid == 2)
+			{
+				conv.demo(notify);
+				break;
+			}
+			//★★★★★★★★★★★★★★★★★★★★★★★★★★★
 		}
 	}
 	notifyf(">> lines done  = %d", done);

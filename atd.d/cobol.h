@@ -24,6 +24,7 @@ struct cobol : public object
 struct cobol::ffd : public object
 {
 	static regex re;
+	static string::ebcdic ebcdic;
 
 	int		lv		;//LV番号
 	string	name	;//名前
@@ -53,6 +54,9 @@ struct cobol::ffd : public object
 	);
 	bool parsecobol(const string &line);
 
+	//変換処理
+	void conv(const char *src, int srclen, char *ptr, int size) const;
+
 
 	string demo() const;
 };
@@ -64,7 +68,7 @@ struct cobol::fdg : public object, public std::vector<ffd>
 	int rsize;//レコード長
 
 	std::map<string, int> names;//重複チェック用
-	
+
 	fdg();
 	void clear();
 
@@ -77,6 +81,9 @@ struct cobol::fdg : public object, public std::vector<ffd>
 
 	//プロパティリストのスケルトン作成
 	generic::properties propskelton() const;
+
+	//変換
+	void conv(const string &line, generic::properties &conv) const;
 
 	void demo(const generic::notify &notify) const;
 };

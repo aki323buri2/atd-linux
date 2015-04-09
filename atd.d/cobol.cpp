@@ -5,6 +5,7 @@
 //====================================================
 //初期化実行
 struct regex cobol::ffd::re;
+struct string::ebcdic cobol::ffd::ebcdic;
 struct cobol::init cobol::init;
 cobol::init::init()
 {
@@ -123,6 +124,7 @@ void cobol::fdg::loadcobol(std::istream &is, const string &encfrom)
 	string encto = "UTF-8";
 	string::encoder encoder(encto, encfrom);
 
+
 	//プレ作成
 	fdg pre;
 	string line;
@@ -156,6 +158,9 @@ cobol::fdg::const_iterator cobol::fdg::expandto(
 {
 	//レコード長累積
 	int &rsize		= that.rsize;
+	cout << rsize << endl;
+	//止め
+	if (where == end()) return where;
 
 	//現在のイレレータの内容をコピー
 	struct ffd ffd = *where;//コピー
@@ -186,7 +191,7 @@ cobol::fdg::const_iterator cobol::fdg::expandto(
 			//LV番号が大きい間再帰呼び出す
 			++cursor;
 			int lv = ffd.lv;
-			while (cursor != that.end() && cursor->lv > lv)
+			while (cursor != end() && cursor->lv > lv)
 			{
 				cursor = expandto(that, cursor, i, occurs);
 			}
@@ -212,14 +217,12 @@ cobol::fdg::const_iterator cobol::fdg::expandto(
 				? string::format("%s_%d", name.c_str(), count)
 				: name 
 				;
-
 			that.push_back(ffd);
 			//イテレータを進める
 			++cursor;
 		}
 	}
 	return cursor;
-
 }
 //====================================================
 //= プロパティリストのスケルトン作成
@@ -246,6 +249,48 @@ generic::properties cobol::fdg::propskelton() const
 	}
 
 	return prop;
+}
+//====================================================
+//= 変換
+//====================================================
+void cobol::fdg::conv(const string &line, generic::properties &conv) const
+{
+	const char *ptr = &line[0];
+
+	for (const_iterator i = begin(), e = end()
+		; i != e; ++i)
+	{
+		const ffd &ffd = *i;
+		const string &id = ffd.id;
+		int offset = ffd.offset;
+		int real = ffd.real;
+		string &value = conv.value_of(id);
+		ffd.conv(ptr + offset, real, &value[0], value.size());
+
+		value = string::encoder("UTF-8", "SJIS-WIN").encode(value);
+	}
+}
+void cobol::ffd::conv(const char *src, int srclen, char *ptr, int size) const 
+{
+	bool kanji = (type == "N");
+
+	if (kanji)
+	{
+		//--------------------------------------------
+		//- JEF漢字
+		//--------------------------------------------
+		for (int i = 0; i < srclen; i++)
+		{
+			const char *p = src + i;
+			uchar hi = *(p);
+			uchar lo = *(p + 1);
+			ushort jef = hi << 8 | lo;
+			ushort sjis = ebcdic.jef2sjis_word(jef);
+			*(ptr + (  i)) = sjis >> 8 & 0xff;
+			*(ptr + (++i)) = sjis & 0xff;
+		}
+
+	}
 }
 //====================================================
 //= デモ表示
