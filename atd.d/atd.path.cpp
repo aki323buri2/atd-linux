@@ -101,6 +101,11 @@ bool path::islink(const string &path)
 	if (::stat(path.c_str(), &st) != 0) return false;
 	return (st.st_mode & S_IFLNK) == S_IFDIR;
 }
+//ファイルサイズ
+int64 path::filesize(const string &path)
+{
+	return fileinfo(path).size;
+}
 //ディレクトリの作成
 bool path::mkdir(const string &path, int mode)
 {

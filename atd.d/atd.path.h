@@ -29,22 +29,25 @@ struct path : public object
 	//シンボリックリンクかどうか
 	static bool islink(const string &path);
 
+	//ファイルサイズ
+	static int64 filesize(const string &path);
+
 	//ディレクトリの作成
 	static bool mkdir(const string &path, int mode = 0777);
 
 	//ファイル情報
 	struct fileinfo_t 
 	{
-		int dev		;/*st_dev;		ファイルがあるデバイスの ID */
-		int ino		;/*st_ino;		inode 番号 */
-		int mode	;/*st_mode;		アクセス保護 */
-		int nlink	;/*st_nlink;	ハードリンクの数 */
-		int uid		;/*st_uid;		所有者のユーザー ID */
-		int gid		;/*st_gid;		所有者のグループ ID */
-		int rdev	;/*st_rdev;		デバイス ID (特殊ファイルの場合) */
-		int size	;/*st_size;		全体のサイズ (バイト単位) */
-		int blksize	;/*st_blksize;	ファイルシステム I/O でのブロックサイズ */
-		int blocks	;/*st_blocks;	割り当てられた 512B のブロック数 */
+		int		dev		;/*st_dev;		ファイルがあるデバイスの ID */
+		int		ino		;/*st_ino;		inode 番号 */
+		int		mode	;/*st_mode;		アクセス保護 */
+		int		nlink	;/*st_nlink;	ハードリンクの数 */
+		int		uid		;/*st_uid;		所有者のユーザー ID */
+		int		gid		;/*st_gid;		所有者のグループ ID */
+		int		rdev	;/*st_rdev;		デバイス ID (特殊ファイルの場合) */
+		int64	size	;/*st_size;		全体のサイズ (バイト単位) */
+		int		blksize	;/*st_blksize;	ファイルシステム I/O でのブロックサイズ */
+		int		blocks	;/*st_blocks;	割り当てられた 512B のブロック数 */
 
 		/* Linux 2.6 以降では、カーネルは以下のタイムスタンプ
 		   フィールドでナノ秒の精度をサポートしている。
