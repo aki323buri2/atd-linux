@@ -128,16 +128,30 @@ void test(const string &text)
 	cobol::fdg fdg;
 	fdg.loadcobol(ifs);
 	
-	// fdg.demo(notify);
+	fdg.demo(notify);
 
 	ifs.close();
 
-	//EBCファイルを読む
-	ifs.open(path.ebc.c_str(), std::ios::in);
-
+	//EBCファイルの情報取得
 	path::fileinfo_t info = path::fileinfo(path.ebc);
+	info.demo(notify);
 
-	info.demo();
+	//行数計算
+	string line(fdg.rsize, 0);
+	int64 lines = info.size / line.size();
+
+	notify("");
+	notifyf(">> lines to do = %d", lines);
+
+	//EBCファイルを読む
+	int64 done = 0;
+	ifs.open(path.ebc.c_str(), std::ios::in);
+	while (ifs && ifs.read(&line[0], line.size()))
+	{
+		done++;
+	}
+	notifyf(">> lines done  = %d", done);
+
 
 	notify("######################################################");
 }

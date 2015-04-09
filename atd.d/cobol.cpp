@@ -48,6 +48,7 @@ cobol::ffd::ffd(
 , offset(0)
 , real(0)
 , sub(0)
+, subdn(1)//★
 {
 }
 bool cobol::ffd::parsecobol(const string &line)
@@ -144,6 +145,7 @@ cobol::fdg::const_iterator cobol::fdg::expandto(
 	  fdg &that
 	, const_iterator where
 	, int sub
+	, int subdn//分母
 ) const
 {
 	//レコード長累積
@@ -159,6 +161,7 @@ cobol::fdg::const_iterator cobol::fdg::expandto(
 
 	//繰り返しのインデックス
 	ffd.sub = sub;
+	ffd.subdn = subdn;
 
 	//イテレータコピー
 	const_iterator cursor = where;
@@ -180,7 +183,7 @@ cobol::fdg::const_iterator cobol::fdg::expandto(
 			int lv = ffd.lv;
 			while (cursor != that.end() && cursor->lv > lv)
 			{
-				cursor = expandto(that, cursor, i);
+				cursor = expandto(that, cursor, i, occurs);
 			}
 		}
 		else 
@@ -215,12 +218,12 @@ string cobol::ffd::demo() const
 	return string::format(
 		"%02d"
 		" %-10s"
-		" %4s"
+		" %7s"
 		"%-25s"
 		"%-10s"
 		, lv
 		, name.c_str()
-		, (sub ? string::format("(%2d)", sub+1).c_str() : "")
+		, (subdn > 1 ? string::format("(%2d/%2d)", sub+1, subdn).c_str() : "")
 		, (!type.length() 
 			? "" 
 			: string::format(

@@ -25,18 +25,19 @@ struct cobol::ffd : public object
 {
 	static regex re;
 
-	int		lv		;
-	string	name	;
-	bool	sig		;
-	string	type	;
-	int		left	;
-	int		right	;
-	bool	pack	;
-	int		occurs	;
+	int		lv		;//LV番号
+	string	name	;//名前
+	bool	sig		;//符号
+	string	type	;//データタイプ
+	int		left	;//整数部桁数
+	int		right	;//小数部桁数
+	bool	pack	;//パック項目
+	int		occurs	;//OCCURS（繰り返し数）
 
-	int		offset	;
-	int		real	;
-	int		sub		;
+	int		offset	;//開始バイト位置
+	int		real	;//実バイト数
+	int		sub		;//OCCURS繰り返しインデックス
+	int		subdn	;//OCCURS繰り返しインデックスの分母(dn: dinominatorの略）
 
 
 	ffd(
@@ -58,16 +59,16 @@ struct cobol::ffd : public object
 //====================================================
 struct cobol::fdg : public object, public std::vector<ffd>
 {
-	int rsize;
+	int rsize;//レコード長
 
 	fdg();
 
 	//COBOLイメージのロード
 	void loadcobol(std::istream &is, const string &encfrom = "SJIS-WIN");
 
-	//OCCURS / 集団項目展開
+	//OCCURS展開
 	void expandto(fdg &that) const;
-	const_iterator expandto(fdg &that, const_iterator where, int sub) const;
+	const_iterator expandto(fdg &that, const_iterator where, int sub, int subdn = 1) const;
 
 	void demo(const generic::notify &notify) const;
 };
