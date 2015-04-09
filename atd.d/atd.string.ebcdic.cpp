@@ -26,14 +26,14 @@ string::ebcdic::~ebcdic()
 //----------------------------------------------------
 ushort string::ebcdic::jis2sjis(ushort jis) 
 {
-	uchar h = (jis >> 8) & 0xff;//high byte
-	uchar l = (jis >> 0) & 0xff;//low  byte
+	uchar hi = (jis >> 8) & 0xff;//high byte
+	uchar lo = (jis >> 0) & 0xff;//low  byte
 
 	//------------------------------------------------
 	//★アルゴリズムパクッた！
 	//  > http://sound.jp/otaq/tohoho/wwwkanji.htm
-	uchar &c1 = h;
-	uchar &c2 = l;
+	uchar &c1 = hi;
+	uchar &c2 = lo;
 
 	if (c1 % 2)
 	{
@@ -49,7 +49,7 @@ ushort string::ebcdic::jis2sjis(ushort jis)
     if (c2 >= 0x7f) { c2 += 1; }
 	//------------------------------------------------
 
-	return ((h & 0xff) << 8) | (l & 0xff);
+	return ((hi & 0xff) << 8) | (lo & 0xff);
 }
 //----------------------------------------------------
 //- EBDCID >> SJIS (BYTE単位)
