@@ -158,16 +158,23 @@ void test(const string &text)
 
 	//変換用スケルトン
 	generic::properties conv = fdg.propskelton();
-	// conv.demo(notify);
-
+	generic::properties disp = fdg.propskelton();
+	
 	notify ("");
 	notify (" PIC  Line  description");
 	notify ("-----------------------------------------------------------");
+
+	string::encoder utf8("UTF-8", "SJIS-WIN");
 
 	while (ifs && ifs.read(&line[0], line.size()))
 	{
 		//変換実行！！
 		fdg.conv(line, conv);
+		for (generic::properties::iterator i = conv.begin(), e = conv.end()
+			; i != e; ++i)
+		{
+			disp[i->name] = utf8.encode(i->value);
+		}
 
 		done++;
 		if (done % pickupspan == 1)//★
@@ -179,10 +186,13 @@ void test(const string &text)
 				, done
 			);
 			//★★★★★★★★★★★★★★★★★★★★★★★★★★★
-			if (pickupid == 2)
+			if (false
+				|| pickupid == 1
+				|| pickupid == 2
+				|| pickupid == 3
+			)
 			{
-				conv.demo(notify);
-				break;
+				disp.demo(notify);
 			}
 			//★★★★★★★★★★★★★★★★★★★★★★★★★★★
 		}

@@ -55,7 +55,7 @@ struct cobol::ffd : public object
 	bool parsecobol(const string &line);
 
 	//変換処理
-	void conv(const char *src, int srclen, char *ptr, int size) const;
+	void conv(const char *src, char *ptr) const;
 
 
 	string demo() const;

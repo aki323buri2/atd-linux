@@ -241,11 +241,16 @@ generic::properties cobol::fdg::propskelton() const
 
 		const string &id   = ffd.id;
 		const string &type = ffd.type;
+		const bool pack = ffd.pack;
 		const int real = ffd.real;
+		const int left = ffd.left;
+		const int right = ffd.right;
+
+		int size = pack ? (left + right) : real;
 		
 		//要素を追加して実バイトサイズ分の領域確保
 		string &value = prop.value_of(id);
-		value.assign(real, type[0]);
+		value.assign(size, type[0]);
 	}
 
 	return prop;
@@ -262,16 +267,16 @@ void cobol::fdg::conv(const string &line, generic::properties &conv) const
 	{
 		const ffd &ffd = *i;
 		const string &id = ffd.id;
-		int offset = ffd.offset;
-		int real = ffd.real;
 		string &value = conv.value_of(id);
-		ffd.conv(ptr + offset, real, &value[0], value.size());
 
-		value = string::encoder("UTF-8", "SJIS-WIN").encode(value);
+		//変換
+		ffd.conv(ptr, &value[0]);
 	}
 }
-void cobol::ffd::conv(const char *src, int srclen, char *ptr, int size) const 
+void cobol::ffd::conv(const char *src, char *ptr) const 
 {
+	uchar *p = (uchar *)(src + offset);
+
 	bool kanji = (type == "N");
 
 	if (kanji)
@@ -279,18 +284,39 @@ void cobol::ffd::conv(const char *src, int srclen, char *ptr, int size) const
 		//--------------------------------------------
 		//- JEF漢字
 		//--------------------------------------------
-		for (int i = 0; i < srclen; i++)
+		for (int i = 0; i < real; i++)
 		{
-			const char *p = src + i;
-			uchar hi = *(p);
-			uchar lo = *(p + 1);
-			ushort jef = hi << 8 | lo;
+			uchar hi = *(p++);
+			uchar lo = *(p++);
+			ushort jef  = hi << 8 | lo;
 			ushort sjis = ebcdic.jef2sjis_word(jef);
-			*(ptr + (  i)) = sjis >> 8 & 0xff;
-			*(ptr + (++i)) = sjis & 0xff;
+			*(ptr++) = sjis >> 8 & 0xff;
+			*(ptr++) = sjis & 0xff;
+			i++;
 		}
-
 	}
+	else if (pack)
+	{
+		//--------------------------------------------
+		//-　パック項目
+		//--------------------------------------------
+		for (int i = 0; i < real; i++)
+		{
+			::snprintf(ptr, 3, "%02x", *(p++));
+			ptr += 2;
+		}
+	}
+	else
+	{
+		//--------------------------------------------
+		//- 半角英数（PIC 9 or X）
+		//--------------------------------------------
+		for (int i = 0; i < real; i++)
+		{
+			*(ptr++) = ebcdic.ebc2sjis_byte(*(p++));
+		}
+	}
+
 }
 //====================================================
 //= デモ表示
