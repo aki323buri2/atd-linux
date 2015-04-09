@@ -90,6 +90,56 @@ string datetime::yobi(int wday)
 	static const int size = sizeof(ww)/sizeof(ww[0]);
 	return BETWEEN(0, wday, size) ? ww[wday] : "";
 }
+//ゼロ
+datetime datetime::zero()
+{
+	struct tm tm = {0};
+	datetime dt;
+	dt.fromtm(tm);
+	return dt;
+}
+bool datetime::eq(const datetime &that) const 
+{
+	return true
+		&& year	== that.year
+		&& mon	== that.mon	
+		&& day	== that.day	
+		&& wday	== that.wday
+		&& hour	== that.hour
+		&& min	== that.min	
+		&& sec	== that.sec	
+		;
+}
+bool datetime::lt(const datetime &that) const 
+{
+	return 
+		year< that.year	? true : (
+		mon	< that.mon	? true : (
+		day	< that.day	? true : (
+		hour< that.hour	? true : (
+		min	< that.min	? true : (
+		sec	< that.sec	
+		)))));
+}
+bool datetime::gt(const datetime &that) const 
+{
+	return 
+		year> that.year	? true : (
+		mon	> that.mon	? true : (
+		day	> that.day	? true : (
+		hour> that.hour	? true : (
+		min	> that.min	? true : (
+		sec	> that.sec	
+		)))));
+}
+//比較
+bool datetime::operator == (const datetime &that) const { return eq(that); }
+bool datetime::operator != (const datetime &that) const { return !eq(that); }
+bool datetime::operator <  (const datetime &that) const { return lt(that); }
+bool datetime::operator <= (const datetime &that) const { return lt(that) || eq(that); }
+bool datetime::operator >  (const datetime &that) const { return gt(that); }
+bool datetime::operator >= (const datetime &that) const { return gt(that) || eq(that); }
+
 //====================================================
 //= datetime::strftime()
 //====================================================

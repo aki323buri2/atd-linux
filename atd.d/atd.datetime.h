@@ -37,6 +37,20 @@ struct datetime : public object
 	string yobi() const;
 	static string yobi(int wday);
 
+	//ゼロ
+	static datetime zero();
+
+	//比較
+	bool eq(const datetime &that) const;
+	bool lt(const datetime &that) const;
+	bool gt(const datetime &that) const;
+	bool operator == (const datetime &that) const;
+	bool operator != (const datetime &that) const;
+	bool operator <  (const datetime &that) const;
+	bool operator <= (const datetime &that) const;
+	bool operator >  (const datetime &that) const;
+	bool operator >= (const datetime &that) const;
+
 	string strftime(const string &format = "%Y-%m-%d %H:%M:%S") const;
 	/*
 	書式	置き換わる文字列
