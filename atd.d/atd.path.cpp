@@ -122,3 +122,58 @@ bool path::mkdir(const string &path, int mode)
 	//最終的に成功したかどうか
 	return r == 0;
 }
+
+//ファイル情報
+path::fileinfo_t::fileinfo_t()
+: dev(0)
+, ino(0)
+, mode(0)
+, nlink(0)
+, uid(0)
+, gid(0)
+, rdev(0)
+, size(0)
+, blksize(0)
+, blocks(0)
+{
+	atime.zero();
+	mtime.zero();
+	ctime.zero();
+}
+path::fileinfo_t path::fileinfo(const string &path)
+{
+	fileinfo_t info;
+
+	struct stat st = {0};
+	if (::stat(path.c_str(), &st) != 0) return info;
+
+	info.dev	= st.st_dev		;/* ファイルがあるデバイスの ID */
+	info.ino	= st.st_ino		;/* inode 番号 */
+	info.mode	= st.st_mode	;/* アクセス保護 */
+	info.nlink	= st.st_nlink	;/* ハードリンクの数 */
+	info.uid	= st.st_uid		;/* 所有者のユーザー ID */
+	info.gid	= st.st_gid		;/* 所有者のグループ ID */
+	info.rdev	= st.st_rdev	;/* デバイス ID (特殊ファイルの場合) */
+	info.size	= st.st_size	;/* 全体のサイズ (バイト単位) */
+	info.blksize= st.st_blksize	;/* ファイルシステム I/O でのブロックサイズ */
+	info.blocks	= st.st_blocks	;/* 割り当てられた 512B のブロック数 */
+
+	return info;
+}
+void path::fileinfo_t::demo()
+{
+	cout << string::format("dev      : %10d %s ", dev		, "/* ファイルがあるデバイスの ID */") << endl;
+	cout << string::format("ino      : %10d %s ", ino		, "/* inode 番号 */") << endl;
+	cout << string::format("mode     : %10d %s ", mode		, "/* アクセス保護 */") << endl;
+	cout << string::format("nlink    : %10d %s ", nlink		, "/* ハードリンクの数 */") << endl;
+	cout << string::format("uid      : %10d %s ", uid		, "/* 所有者のユーザー ID */") << endl;
+	cout << string::format("gid      : %10d %s ", gid		, "/* 所有者のグループ ID */") << endl;
+	cout << string::format("rdev     : %10d %s ", rdev		, "/* デバイス ID (特殊ファイルの場合) */") << endl;
+	cout << string::format("size     : %10d %s ", size		, "/* 全体のサイズ (バイト単位) */") << endl;
+	cout << string::format("blksize  : %10d %s ", blksize	, "/* ファイルシステム I/O でのブロックサイズ */") << endl;
+	cout << string::format("blocks   : %10d %s ", blocks	, "/* 割り当てられた 512B のブロック数 */") << endl;
+
+	cout << "atime    : " << atime.strftime() << "/* 最終アクセス時刻 */" << endl;;
+	cout << "mtime    : " << mtime.strftime() << "/* 最終修正時刻 */" << endl;;
+	cout << "ctime    : " << ctime.strftime() << "/* 最終状態変更時刻 */" << endl;;
+}
