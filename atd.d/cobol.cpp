@@ -300,11 +300,7 @@ void cobol::ffd::conv(const char *src, char *ptr) const
 		//--------------------------------------------
 		//-　パック項目
 		//--------------------------------------------
-		for (int i = 0; i < real; i++)
-		{
-			::snprintf(ptr, 3, "%02x", *(p++));
-			ptr += 2;
-		}
+		
 	}
 	else
 	{
