@@ -130,10 +130,12 @@ void cobol::fdg::loadcobol(std::istream &is, const string &encfrom)
 
 		pre.push_back(ffd);
 	}
-
+	//OCCURS展開
 	pre.expandto(*this);
 }
-//OCCURS / 集団項目展開
+//====================================================
+//= OCCURS展開
+//====================================================
 void cobol::fdg::expandto(fdg &that) const
 {
 	expandto(that, begin(), 0);
@@ -144,30 +146,38 @@ cobol::fdg::const_iterator cobol::fdg::expandto(
 	, int sub
 ) const
 {
-	struct ffd ffd = *where;//コピー
-
+	//レコード長累積
 	int &rsize		= that.rsize;
+
+	//現在のイレレータの内容をコピー
+	struct ffd ffd = *where;//コピー
 	int  occurs		= ffd.occurs;
 	int &real		= ffd.real	;
 	int &offset		= ffd.offset;
 	string &name	= ffd.name	;
 	string &type	= ffd.type	;
 
+	//繰り返しのインデックス
 	ffd.sub = sub;
 
-	if (!occurs) occurs = 1;
-	
+	//イテレータコピー
 	const_iterator cursor = where;
 
+	//OCCURS分繰り返す！
+	if (!occurs) occurs = 1;
 	for (int i = 0; i < occurs; i++)
 	{
 		if (!type.length())
 		{
-			//集団項目
-			int lv = ffd.lv;
-
+			//----------------------------------------
+			//集団項目である
+			//----------------------------------------
+			//イテレータをスタート位置に
 			cursor = where;
+
+			//LV番号が大きい間再帰呼び出す
 			++cursor;
+			int lv = ffd.lv;
 			while (cursor != that.end() && cursor->lv > lv)
 			{
 				cursor = expandto(that, cursor, i);
@@ -175,10 +185,16 @@ cobol::fdg::const_iterator cobol::fdg::expandto(
 		}
 		else 
 		{
+			//----------------------------------------
+			//集団項目でない
+			//----------------------------------------
+			//項目を追加
 			offset = rsize;
 			rsize += real;
 			that.push_back(ffd);
-			cursor++;
+
+			//イテレータを進める
+			++cursor;
 		}
 	}
 	return cursor;
