@@ -136,9 +136,9 @@ path::fileinfo_t::fileinfo_t()
 , blksize(0)
 , blocks(0)
 {
-	atime.zero();
-	mtime.zero();
-	ctime.zero();
+	atime = datetime::zero();
+	mtime = datetime::zero();
+	ctime = datetime::zero();
 }
 path::fileinfo_t path::fileinfo(const string &path)
 {
@@ -157,6 +157,11 @@ path::fileinfo_t path::fileinfo(const string &path)
 	info.size	= st.st_size	;/* 全体のサイズ (バイト単位) */
 	info.blksize= st.st_blksize	;/* ファイルシステム I/O でのブロックサイズ */
 	info.blocks	= st.st_blocks	;/* 割り当てられた 512B のブロック数 */
+
+	info.atime.fromtm(*::localtime(&st.st_atim.tv_sec));
+	info.mtime.fromtm(*::localtime(&st.st_mtim.tv_sec));
+	info.ctime.fromtm(*::localtime(&st.st_ctim.tv_sec));
+
 
 	return info;
 }
