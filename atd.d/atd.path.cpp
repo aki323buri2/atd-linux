@@ -170,20 +170,22 @@ path::fileinfo_t path::fileinfo(const string &path)
 
 	return info;
 }
-void path::fileinfo_t::demo()
+void path::fileinfo_t::demo(const generic::notify &notify)
 {
-	cout << string::format("dev      : %10d %s ", dev		, "/* ファイルがあるデバイスの ID */") << endl;
-	cout << string::format("ino      : %10d %s ", ino		, "/* inode 番号 */") << endl;
-	cout << string::format("mode     : %10d %s ", mode		, "/* アクセス保護 */") << endl;
-	cout << string::format("nlink    : %10d %s ", nlink		, "/* ハードリンクの数 */") << endl;
-	cout << string::format("uid      : %10d %s ", uid		, "/* 所有者のユーザー ID */") << endl;
-	cout << string::format("gid      : %10d %s ", gid		, "/* 所有者のグループ ID */") << endl;
-	cout << string::format("rdev     : %10d %s ", rdev		, "/* デバイス ID (特殊ファイルの場合) */") << endl;
-	cout << string::format("size     : %10d %s ", size		, "/* 全体のサイズ (バイト単位) */") << endl;
-	cout << string::format("blksize  : %10d %s ", blksize	, "/* ファイルシステム I/O でのブロックサイズ */") << endl;
-	cout << string::format("blocks   : %10d %s ", blocks	, "/* 割り当てられた 512B のブロック数 */") << endl;
+	int offset = 20;
+	generic::notifyf notifyf = notify;
+	notifyf("dev      : %*d %s ", offset, dev		, "/* ファイルがあるデバイスの ID */");
+	notifyf("ino      : %*d %s ", offset, ino		, "/* inode 番号 */");
+	notifyf("mode     : %*d %s ", offset, mode		, "/* アクセス保護 */");
+	notifyf("nlink    : %*d %s ", offset, nlink		, "/* ハードリンクの数 */");
+	notifyf("uid      : %*d %s ", offset, uid		, "/* 所有者のユーザー ID */");
+	notifyf("gid      : %*d %s ", offset, gid		, "/* 所有者のグループ ID */");
+	notifyf("rdev     : %*d %s ", offset, rdev		, "/* デバイス ID (特殊ファイルの場合) */");
+	notifyf("size     : %*d %s ", offset, size		, "/* 全体のサイズ (バイト単位) */");
+	notifyf("blksize  : %*d %s ", offset, blksize	, "/* ファイルシステム I/O でのブロックサイズ */");
+	notifyf("blocks   : %*d %s ", offset, blocks	, "/* 割り当てられた 512B のブロック数 */");
 
-	cout << "atime    : " << atime.strftime() << "/* 最終アクセス時刻 */" << endl;;
-	cout << "mtime    : " << mtime.strftime() << "/* 最終修正時刻 */" << endl;;
-	cout << "ctime    : " << ctime.strftime() << "/* 最終状態変更時刻 */" << endl;;
+	notifyf("atime    : %-*s %s", offset, atime.strftime().c_str(), "/* 最終アクセス時刻 */");
+	notifyf("mtime    : %-*s %s", offset, mtime.strftime().c_str(), "/* 最終修正時刻 */");
+	notifyf("ctime    : %-*s %s", offset, ctime.strftime().c_str(), "/* 最終状態変更時刻 */");
 }

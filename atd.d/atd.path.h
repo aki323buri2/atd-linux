@@ -3,6 +3,7 @@
 #define __atd_path_h__
 #include "atd.h"
 namespace atd {;;
+namespace generic { struct notify; } //prototype
 //====================================================
 //= struct atd::path
 //====================================================
@@ -59,7 +60,7 @@ struct path : public object
 		datetime ctime;/*st_ctim  最終状態変更時刻 */
 
 		fileinfo_t();
-		void demo();
+		void demo(const generic::notify &notify);
 	};
 	static fileinfo_t fileinfo(const string &path);
 };
