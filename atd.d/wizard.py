@@ -41,9 +41,9 @@ names = [
 	"common", 
 	"object", 
 	"string", 
-	"regex", 
-	"path", 
 	"datetime",
+	"path", 
+	"regex", 
 	"generic", 
 ]
 nocpp = [
@@ -56,9 +56,9 @@ lock = [
 	"common", 
 	"object", 
 	"string",
-	"regex",  
-	"path", 
 	"datetime", 
+	"path", 
+	"regex",  
 	"generic"
 
 ]

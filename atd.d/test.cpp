@@ -106,7 +106,7 @@ int run(int argc, char **argv)
 	}
 
 	// test(arg.fdg);
-	test(arg.fdg);
+	test(arg.fdg + ";" + arg.ebc);
 	
 
 	return 0;
@@ -116,15 +116,28 @@ int run(int argc, char **argv)
 void test(const string &text)
 {
 	notify("######################################################");
-	string path = text;
+	strings ss = text.explode(";");
+	struct { string fdg, ebc; } path;
+	path.fdg = ss[0];
+	path.ebc = ss[1];
 
-	//ファイル読む
-	std::ifstream ifs(path.c_str(), std::ios::in);
+	std::ifstream ifs;
+	//FDGファイル読む
+	ifs.open(path.fdg.c_str(), std::ios::in);
 	
 	cobol::fdg fdg;
 	fdg.loadcobol(ifs);
 	
-	fdg.demo(notify);
+	// fdg.demo(notify);
+
+	ifs.close();
+
+	//EBCファイルを読む
+	ifs.open(path.ebc.c_str(), std::ios::in);
+
+	path::fileinfo_t info = path::fileinfo(path.ebc);
+
+	info.demo();
 
 	notify("######################################################");
 }
