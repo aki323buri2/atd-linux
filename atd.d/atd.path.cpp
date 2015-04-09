@@ -79,6 +79,7 @@ bool path::exists(const string &path)
 // S_IFDIR	0040000	ディレクトリ
 // S_IFCHR	0020000	キャラクターデバイス
 // S_IFIFO	0010000	FIFO
+//----------------------------------------------------
 //ファイルかどうか
 bool path::isfile(const string &path)
 {
@@ -93,7 +94,7 @@ bool path::isdir(const string &path)
 	if (::stat(path.c_str(), &st) != 0) return false;
 	return (st.st_mode & S_IFMT) == S_IFDIR;
 }
-//ディレクトリかどうか
+//シンボリックリンクかどうか
 bool path::islink(const string &path)
 {
 	struct stat st = {0};
