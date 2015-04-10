@@ -44,6 +44,9 @@ struct string : public object, public std::string
 	bool endswith(const string &with) const;
 	static bool startswith(const string &s, const string &with);
 	static bool endswith(const string &s, const string &with);
+
+	//エスケープ
+	static string jsonescape(const string &s);
 };
 //====================================================
 //= struct atd::strings
