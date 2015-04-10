@@ -76,7 +76,7 @@ bool cobol::ffd::parsecobol(const string &line)
 	//小数部桁数解析
 	string s = match[8];//"V9(2)" or "V99"
 	string n = match[9];//"2" or "99"
-	if (s.find('(') == string::npos)
+	if (s.find('(') != string::npos)
 	{
 		//小数部記述に'('があれば V9(2)
 		right = n.toint();
@@ -158,7 +158,6 @@ cobol::fdg::const_iterator cobol::fdg::expandto(
 {
 	//レコード長累積
 	int &rsize		= that.rsize;
-	cout << rsize << endl;
 	//止め
 	if (where == end()) return where;
 
@@ -357,7 +356,7 @@ void cobol::ffd::conv(const char *ebcline, char *ptr) const
 			//    ...       ...  
 			// 'i' : +9  'r' : -9
 
-			n = 0;
+			int n = 0;
 			if (false) { }
 			else if (c == '{') { n = 0; minus = false; }
 			else if (c == '}') { n = 0; minus = true ; }
@@ -375,14 +374,40 @@ void cobol::ffd::conv(const char *ebcline, char *ptr) const
 	//ポインタ戻す
 	ptr = memo;
 
-	if (sig && minus)
+	if (sig)
 	{
-		//---------------------------------------------
-		//- 符号化の処理
-		//---------------------------------------------
-		cout << "minus!" << endl;
+		//--------------------------------------------
+		//- サインド項目
+		//--------------------------------------------
+		//後ろにずらす
+		int size = left + right;
+		char *p = ptr + size;
+		for (int i = 0; i < size; i++)
+		{
+			p--;
+			*(p + 1) = *p;
+		}
+		//先頭に'+/-'を付ける
+		*ptr = minus ? '-' : '+';
 	}
+	if (right)
+	{
+		//--------------------------------------------
+		//- 小数点以下
+		//--------------------------------------------
+		//小数点部分を後ろにずらす
+		char *p = ptr + left;
+		if (sig) p++;
+		char *point = p;//小数点を入れる位置を記憶
+		for (int i = 0; i < right; i++)
+		{
+			p++;
+			*(p + 1) = *p;
+		}
+		//小数点を挿入
+		*(point) = '.';
 
+	}
 }
 //====================================================
 //= デモ表示
