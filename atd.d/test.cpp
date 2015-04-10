@@ -149,7 +149,16 @@ void test(const string &text)
 	notify("");
 	notifyf(">> lines to do = %d", lines);
 
-	//EBCファイルを読む
+	//変換用スケルトン作成
+	generic::properties conv = fdg.propskelton();
+	generic::properties disp = conv;//コピー
+
+	//UTF-8エンコーダ作成
+	string::encoder utf8enc("UTF-8", "SJIS-WIN");
+	
+	notify ("");
+
+	//EBCファイルをオープン
 	int64 done = 0;
 	ifs.open(path.ebc.c_str(), std::ios::in | std::ios::binary);
 
@@ -157,17 +166,6 @@ void test(const string &text)
 	int pickupid = 0;
 	int pickupcount = 20;//★
 	int64 pickupspan = lines / pickupcount;//サンプル出力の行スパン
-
-	//変換用スケルトン作成
-	generic::properties conv = fdg.propskelton();
-	generic::properties disp = conv;//コピー
-	
-	//UTF-8エンコーダ作成
-	string::encoder utf8enc("UTF-8", "SJIS-WIN");
-
-	notify ("");
-	notify (" PIC  Line  description");
-	notify ("-----------------------------------------------------------");
 
 	while (ifs && ifs.read(&line[0], line.size()))
 	{
