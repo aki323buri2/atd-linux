@@ -151,33 +151,36 @@ void test(const string &text)
 
 	//EBCファイルを読む
 	int64 done = 0;
-	ifs.open(path.ebc.c_str(), std::ios::in);
+	ifs.open(path.ebc.c_str(), std::ios::in | std::ios::binary);
 
-	//サンプル出力
+	//サンプル出力の行を計算
 	int pickupid = 0;
 	int pickupcount = 20;//★
-	int64 pickupspan = lines / pickupcount;
+	int64 pickupspan = lines / pickupcount;//サンプル出力の行スパン
 
-	//変換用スケルトン
+	//変換用スケルトン作成
 	generic::properties conv = fdg.propskelton();
-	generic::properties disp = fdg.propskelton();
+	generic::properties disp = conv;//コピー
 	
+	//UTF-8エンコーダ作成
+	string::encoder utf8enc("UTF-8", "SJIS-WIN");
+
 	notify ("");
 	notify (" PIC  Line  description");
 	notify ("-----------------------------------------------------------");
 
-	string::encoder utf8("UTF-8", "SJIS-WIN");
-
 	while (ifs && ifs.read(&line[0], line.size()))
 	{
+		//--------------------------------------------
 		//変換実行！！
 		fdg.conv(line, conv);
+		//--------------------------------------------
 
 		//UTF-8変換
 		for (generic::properties::iterator i = conv.begin(), e = conv.end()
 			; i != e; ++i)
 		{
-			disp[i->name] = utf8.encode(i->value);
+			disp[i->name] = utf8enc.encode(i->value);
 		}
 
 		done++;
@@ -185,7 +188,7 @@ void test(const string &text)
 		{
 			notifyf(
 				"%3d : "
-				"%5d XXXXXXX"
+				"%5d >>"
 				, ++pickupid
 				, done
 			);
@@ -202,7 +205,6 @@ void test(const string &text)
 		}
 	}
 	notifyf(">> lines done  = %d", done);
-
 
 	notify("##########################################################");
 }
