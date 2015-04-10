@@ -241,12 +241,16 @@ generic::properties cobol::fdg::propskelton() const
 
 		const string &id   = ffd.id;
 		const string &type = ffd.type;
-		const bool pack = ffd.pack;
+		const bool sig = ffd.sig;
 		const int real = ffd.real;
 		const int left = ffd.left;
 		const int right = ffd.right;
 
-		int size = pack ? (left + right) : real;
+		//出力にバイト数計算
+		int size = left + right;
+		if (type == "N") size = real;
+		if (right) size++;//小数点用
+		if (sig  ) size++;//符号用
 		
 		//要素を追加して実バイトサイズ分の領域確保
 		string &value = prop.value_of(id);
@@ -273,11 +277,14 @@ void cobol::fdg::conv(const string &line, generic::properties &conv) const
 		ffd.conv(ptr, &value[0]);
 	}
 }
-void cobol::ffd::conv(const char *src, char *ptr) const 
+void cobol::ffd::conv(const char *ebcline, char *ptr) const 
 {
-	uchar *p = (uchar *)(src + offset);
+	//オフセット
+	uchar *ebc = (uchar *)(ebcline + offset);
+
 
 	bool kanji = (type == "N");
+	bool minus = false;
 
 	if (kanji)
 	{
@@ -286,13 +293,13 @@ void cobol::ffd::conv(const char *src, char *ptr) const
 		//--------------------------------------------
 		for (int i = 0; i < real; i++)
 		{
-			uchar hi = *(p++);
-			uchar lo = *(p++);
+			uchar hi = *(ebc++);
+			uchar lo = *(ebc++);
 			ushort jef  = hi << 8 | lo;
 			ushort sjis = ebcdic.jef2sjis_word(jef);
 			*(ptr++) = sjis >> 8 & 0xff;
 			*(ptr++) = sjis & 0xff;
-			i++;
+			i++;//２バイトずつ
 		}
 	}
 	else if (pack)
@@ -300,7 +307,31 @@ void cobol::ffd::conv(const char *src, char *ptr) const
 		//--------------------------------------------
 		//-　パック項目
 		//--------------------------------------------
-		
+		bool even = (left + right) % 2 == 0;
+		for (int i = 0; i < real; i++)
+		{
+			uchar c = *(ebc++);
+			uchar buf[3] = {0};
+			::snprintf((char *)buf, sizeof(buf), "%02x", c);
+			uchar hi = buf[0];
+			uchar lo = buf[1];
+			if (i == 0 && even)
+			{
+				//バイト数が偶数の場合先頭の１バイトは捨てる
+				*(ptr++) = lo;
+			}
+			else if (i < real - 1)
+			{
+				*(ptr++) = hi;
+				*(ptr++) = lo;
+			}
+			else if (i == real - 1)
+			{
+				*(ptr++) = hi;
+				//最後の１バイトは符号判定
+				minus = lo == 'D';
+			}
+		}
 	}
 	else
 	{
@@ -309,7 +340,7 @@ void cobol::ffd::conv(const char *src, char *ptr) const
 		//--------------------------------------------
 		for (int i = 0; i < real; i++)
 		{
-			*(ptr++) = ebcdic.ebc2sjis_byte(*(p++));
+			*(ptr++) = ebcdic.ebc2sjis_byte(*(ebc++));
 		}
 	}
 

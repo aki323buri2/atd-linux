@@ -187,8 +187,8 @@ void test(const string &text)
 			);
 			//★★★★★★★★★★★★★★★★★★★★★★★★★★★
 			if (false
-				|| pickupid == 1
-				|| pickupid == 2
+				// || pickupid == 1
+				// || pickupid == 2
 				|| pickupid == 3
 			)
 			{
