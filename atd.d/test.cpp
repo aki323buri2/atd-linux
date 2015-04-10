@@ -218,14 +218,27 @@ void test(const string &text)
 	picojson::value v(picojson::object_type, false);
 	ifs >> v;
 
-	int64 read = 0;
+	generic::properties read = disp;//コピー
+
+	int64 rr = 0;
 	picojson::array &a = v.get<picojson::array>();
 	for (picojson::array::iterator i = a.begin(), e = a.end()
 		; i != e; ++i)
 	{
-		read++;		
+		picojson::object &o = i->get<picojson::object>();
+		for (picojson::object::iterator i = o.begin(), e = o.end()
+			; i != e; ++i)
+		{
+			read.value_of(i->first) = i->second.to_str();
+		}
+		rr++;	
+
+		if (rr == 7000)
+		{
+			read.demo(notify);
+		}	
 	}
-	cout << read << endl;
+	cout << rr << endl;
 
 
 
