@@ -150,3 +150,23 @@ string strings::implode(const string &glue) const
 {
 	return implode(*this, glue);
 }
+//====================================================
+//= JSONエスケープ
+//====================================================
+string string::jsonescape(const string &s)
+{
+	string r;
+	for (string::const_iterator i = s.begin(), e = s.end()
+		; i != e; ++i)
+	{
+		uchar c = (uchar)*i;
+		switch (c)
+		{
+		case '"'	: r += "\\\""	; break;
+		case '\\'	: r += "\\\\"	; break;
+		case '/'	: r += "\\/"	; break;
+		default		: r += c;
+		}
+	}
+	return r;
+}
