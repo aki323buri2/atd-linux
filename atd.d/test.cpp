@@ -51,6 +51,8 @@ int run(int argc, char **argv)
 	notify("... option parsing ...");
 
 	commandline.value_of("ebc") = home + "/ebc/TMASAPF.RDMLIB";
+	commandline.value_of("ebc") = home + "/ebc/ZAIKOPF.KCRDMLB";
+	commandline.value_of("ebc") = home + "/ebc/URIRUISF.161";
 	commandline.apply(argc, argv);
 
 	//Usage!
@@ -188,7 +190,7 @@ void test(const string &text)
 			//★★★★★★★★★★★★★★★★★★★★★★★★★★★
 			if (false
 				// || pickupid == 1
-				// || pickupid == 2
+				|| pickupid == 2
 				|| pickupid == 3
 			)
 			{

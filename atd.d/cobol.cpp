@@ -279,6 +279,9 @@ void cobol::fdg::conv(const string &line, generic::properties &conv) const
 }
 void cobol::ffd::conv(const char *ebcline, char *ptr) const 
 {
+	//メモっとく
+	char *memo = ptr;
+
 	//オフセット
 	uchar *ebc = (uchar *)(ebcline + offset);
 
@@ -329,7 +332,7 @@ void cobol::ffd::conv(const char *ebcline, char *ptr) const
 			{
 				*(ptr++) = hi;
 				//最後の１バイトは符号判定
-				minus = lo == 'D';
+				minus = (lo == 'd');
 			}
 		}
 	}
@@ -342,6 +345,42 @@ void cobol::ffd::conv(const char *ebcline, char *ptr) const
 		{
 			*(ptr++) = ebcdic.ebc2sjis_byte(*(ebc++));
 		}
+		if (sig)
+		{
+			ptr--;//１つ戻る（末尾を指す）
+			uchar c = (uchar)*ptr;
+
+			// '}' : +0  '{' : -0
+			// 'a' : +1  'j' : -1
+			// 'b' : +2  'k' : -2
+			// 'c' : +3  'l' : -3
+			//    ...       ...  
+			// 'i' : +9  'r' : -9
+
+			n = 0;
+			if (false) { }
+			else if (c == '{') { n = 0; minus = false; }
+			else if (c == '}') { n = 0; minus = true ; }
+			else if (BETWEEN('a', c, 'i')) { n = c - 'a'; minus = false; }
+			else if (BETWEEN('j', c, 'r')) { n = c - 'j'; minus = true ; }
+			
+			*ptr = '0' + n;
+
+		}
+	}
+
+	//------------------------------------------------
+	//- 最終調整します
+	//------------------------------------------------
+	//ポインタ戻す
+	ptr = memo;
+
+	if (sig && minus)
+	{
+		//---------------------------------------------
+		//- 符号化の処理
+		//---------------------------------------------
+		cout << "minus!" << endl;
 	}
 
 }
