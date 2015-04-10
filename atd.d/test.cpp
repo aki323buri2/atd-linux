@@ -108,7 +108,7 @@ int run(int argc, char **argv)
 	}
 
 	// test(arg.fdg);
-	test(arg.fdg + ";" + arg.ebc);
+	test(arg.fdg + ";" + arg.ebc + ";" + arg.json);
 	
 
 	return 0;
@@ -119,24 +119,27 @@ void test(const string &text)
 {	
 	notify("##########################################################");
 	strings ss = text.explode(";");
-	struct { string fdg, ebc; } path;
-	path.fdg = ss[0];
-	path.ebc = ss[1];
+	struct { string fdg, ebc, json; } path;
+	path.fdg  = ss[0];
+	path.ebc  = ss[1];
+	path.json = ss[2];
 
 	std::ifstream ifs;
+	std::ofstream ofs;
+
+	//================================================
 	//FDGファイル読む
 	ifs.open(path.fdg.c_str(), std::ios::in);
-	
 	cobol::fdg fdg;
 	fdg.loadcobol(ifs);
-	fdg.demo(notify);
-
-
+//	fdg.demo(notify);
 	ifs.close();
+	//================================================
 
 	//EBCファイルの情報取得
 	notify ("");
-	notifyf(">> EBCDICファイル名 : %s", path.ebc.c_str());
+	notifyf(">> EBCDICファイル名 : ");
+	notifyf(">> %s", path.ebc.c_str());
 	notify (">> -------------------------------------------------------");
 	path::fileinfo_t info = path::fileinfo(path.ebc);
 	info.demo(notify);
@@ -147,7 +150,7 @@ void test(const string &text)
 	int64 lines = info.size / line.size();
 
 	notify("");
-	notifyf(">> lines to do = %d", lines);
+	notifyf(">> lines todo = %d", lines);
 
 	//変換用スケルトン作成
 	generic::properties conv = fdg.propskelton();
@@ -159,14 +162,14 @@ void test(const string &text)
 	notify ("");
 
 	//EBCファイルをオープン
-	int64 done = 0;
 	ifs.open(path.ebc.c_str(), std::ios::in | std::ios::binary);
 
-	//サンプル出力の行を計算
-	int pickupid = 0;
-	int pickupcount = 20;//★
-	int64 pickupspan = lines / pickupcount;//サンプル出力の行スパン
+	//JSONファイル（出力）オープン
+	ofs.open(path.json.c_str(), std::ios::out);
 
+	ofs << "[\n";
+
+	int64 done = 0;
 	while (ifs && ifs.read(&line[0], line.size()))
 	{
 		//--------------------------------------------
@@ -174,35 +177,36 @@ void test(const string &text)
 		fdg.conv(line, conv);
 		//--------------------------------------------
 
+		ofs << "{\n";
+
 		//UTF-8変換
 		for (generic::properties::iterator i = conv.begin(), e = conv.end()
 			; i != e; ++i)
 		{
-			disp[i->name] = utf8enc.encode(i->value);
+			const char *dq = DOUBLE_QUOTATION;
+			string name = utf8enc.encode(i->name);
+			string value = utf8enc.encode(i->value);
+			ofs << dq << string::jsonescape(name) << dq;
+			ofs << ": ";
+			ofs << dq << string::jsonescape(value) << dq;
+			ofs << "\n";
 		}
 
-		done++;
-		if (done % pickupspan == 1)//★
-		{
-			notifyf(
-				"%3d : "
-				"%5d >>"
-				, ++pickupid
-				, done
-			);
-			//★★★★★★★★★★★★★★★★★★★★★★★★★★★
-			if (false
-				// || pickupid == 1
-				|| pickupid == 2
-				|| pickupid == 3
-			)
-			{
-				disp.demo(notify);
-			}
-			//★★★★★★★★★★★★★★★★★★★★★★★★★★★
-		}
+		ofs << "}\n";
 	}
+	
+	ofs << "]";
+	ofs.close();
+	
 	notifyf(">> lines done  = %d", done);
+
+	notify ("");
+	notifyf(">> JSONファイル名 : ");
+	notifyf(">> %s", path.json.c_str());
+	notify (">> -------------------------------------------------------");
+	info = path::fileinfo(path.json);
+	info.demo(notify);
+	notify (">> -------------------------------------------------------");
 
 	notify("##########################################################");
 }
