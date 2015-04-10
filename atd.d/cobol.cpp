@@ -52,6 +52,9 @@ cobol::ffd::ffd(
 , subdn(1)//★OCCURSインデックスの分母
 {
 }
+//====================================================
+//= COBOLイメージ記述の解析
+//====================================================
 bool cobol::ffd::parsecobol(const string &line)
 {
 	//正規表現マッチ
@@ -117,7 +120,9 @@ void cobol::fdg::clear()
 	names.clear();
 	std::vector<ffd>::clear();
 }
-//入力ストリームからロード
+//====================================================
+//= 入力ストリームからロード
+//====================================================
 void cobol::fdg::loadcobol(std::istream &is, const string &encfrom)
 {
 	//文字コードエンコーダ
@@ -229,7 +234,6 @@ cobol::fdg::const_iterator cobol::fdg::expandto(
 generic::properties cobol::fdg::propskelton() const 
 {
 	generic::properties prop;
-
 	//名前重複回避用
 	std::map<string, int> map;
 
