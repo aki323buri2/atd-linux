@@ -50,9 +50,10 @@ int run(int argc, char **argv)
 	//コマンドライン引数解析
 	notify("... option parsing ...");
 
-	commandline.value_of("ebc") = home + "/ebc/TMASAPF.RDMLIB";
-	commandline.value_of("ebc") = home + "/ebc/ZAIKOPF.KCRDMLB";
-	commandline.value_of("ebc") = home + "/ebc/URIRUISF.161";
+//	commandline.value_of("ebc") = home + "/ebc/TMASAPF.RDMLIB";
+//	commandline.value_of("ebc") = home + "/ebc/ZAIKOPF.KCRDMLB";
+	commandline.value_of("ebc") = "/home/ebcdic-files/TDBK1D1.D0209";
+	commandline.value_of("fdg") = home + "/fdg/TUF010.TXT";
 	commandline.apply(argc, argv);
 
 	//Usage!
@@ -133,7 +134,7 @@ void test(const string &text)
 	ifs.open(path.fdg.c_str(), std::ios::in);
 	cobol::fdg fdg;
 	fdg.loadcobol(ifs);
-//	fdg.demo(notify);
+	fdg.demo(notify);
 	ifs.close();
 	//================================================
 
@@ -146,12 +147,14 @@ void test(const string &text)
 	info.demo(notify);
 	notify (">> -------------------------------------------------------");
 
+
 	//行数計算
 	string line(fdg.rsize, 0);
 	int64 lines = info.size / line.size();
 
 	notify("");
 	notifyf(">> lines todo = %d", lines);
+	return;
 
 	//変換用スケルトン作成
 	generic::properties conv = fdg.propskelton();
