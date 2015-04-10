@@ -116,7 +116,7 @@ int run(int argc, char **argv)
 
 #include "cobol.h"
 void test(const string &text)
-{
+{	
 	notify("##########################################################");
 	strings ss = text.explode(";");
 	struct { string fdg, ebc; } path;
@@ -172,6 +172,8 @@ void test(const string &text)
 	{
 		//変換実行！！
 		fdg.conv(line, conv);
+
+		//UTF-8変換
 		for (generic::properties::iterator i = conv.begin(), e = conv.end()
 			; i != e; ++i)
 		{

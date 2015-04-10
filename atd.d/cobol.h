@@ -57,7 +57,7 @@ struct cobol::ffd : public object
 	//変換処理
 	void conv(const char *src, char *ptr) const;
 
-
+	//■デモ■
 	string demo() const;
 };
 //====================================================
@@ -85,6 +85,7 @@ struct cobol::fdg : public object, public std::vector<ffd>
 	//変換
 	void conv(const string &line, generic::properties &conv) const;
 
+	//■デモ■
 	void demo(const generic::notify &notify) const;
 };
 
