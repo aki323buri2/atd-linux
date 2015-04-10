@@ -80,6 +80,11 @@ struct properties : public object, public property::hash::owner_type
 	//マージ
 	void supply  (const properties &with);//隙間を埋める
 	void overwrap(const properties &with);//上書きする
+
+	//イテレータをマップしているのでコピーは自前で！！
+	properties(const properties &that);
+	properties &operator = (const properties &that);
+	properties &copy(const properties &that);
 };
 }//namespace generic
 }//namespace atd

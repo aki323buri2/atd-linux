@@ -186,3 +186,26 @@ void properties::overwrap(const properties &with)
 		value_of(name) = value;
 	}
 }
+//====================================================
+//=　コピー実装
+//====================================================
+//イテレータをマップしているのでコピーは自前で！！
+properties::properties(const properties &that)
+: hash(this)
+{
+	copy(that);
+}
+properties &properties::operator = (const properties &that)
+{
+	return copy(that);
+}
+properties &properties::copy(const properties &that)
+{
+	clear();
+	for (const_iterator i = that.begin(), e = that.end()
+		; i != e; ++i)
+	{
+		value_of(i->name) = i->value;
+	}
+	return *this;
+}
