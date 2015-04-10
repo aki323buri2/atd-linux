@@ -115,6 +115,7 @@ int run(int argc, char **argv)
 }
 
 #include "cobol.h"
+#include "picojson.h"
 void test(const string &text)
 {	
 	notify("##########################################################");
@@ -177,15 +178,18 @@ void test(const string &text)
 		fdg.conv(line, conv);
 		//--------------------------------------------
 
+		ofs << (done++ ? "," : " ");
 		ofs << "{\n";
 
-		//UTF-8変換
+		int c = 0;
 		for (generic::properties::iterator i = conv.begin(), e = conv.end()
 			; i != e; ++i)
 		{
-			const char *dq = DOUBLE_QUOTATION;
+			ofs << (c++ ? "," : " ");
+			//UTF-8変換
 			string name = utf8enc.encode(i->name);
 			string value = utf8enc.encode(i->value);
+			const char *dq = DOUBLE_QUOTATION;
 			ofs << dq << string::jsonescape(name) << dq;
 			ofs << ": ";
 			ofs << dq << string::jsonescape(value) << dq;
@@ -197,6 +201,7 @@ void test(const string &text)
 	
 	ofs << "]";
 	ofs.close();
+	ifs.close();
 	
 	notifyf(">> lines done  = %d", done);
 
@@ -207,6 +212,22 @@ void test(const string &text)
 	info = path::fileinfo(path.json);
 	info.demo(notify);
 	notify (">> -------------------------------------------------------");
+
+	//JSONの読み込みテスト
+	ifs.open(path.json.c_str(), std::ios::in);
+	picojson::value v(picojson::object_type, false);
+	ifs >> v;
+
+	int64 read = 0;
+	picojson::array &a = v.get<picojson::array>();
+	for (picojson::array::iterator i = a.begin(), e = a.end()
+		; i != e; ++i)
+	{
+		read++;		
+	}
+	cout << read << endl;
+
+
 
 	notify("##########################################################");
 }
