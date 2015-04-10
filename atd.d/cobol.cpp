@@ -49,7 +49,7 @@ cobol::ffd::ffd(
 , offset(0)
 , real(0)
 , sub(0)
-, subdn(1)//★
+, subdn(1)//★OCCURSインデックスの分母
 {
 }
 bool cobol::ffd::parsecobol(const string &line)
@@ -278,10 +278,10 @@ void cobol::fdg::conv(const string &line, generic::properties &conv) const
 }
 void cobol::ffd::conv(const char *ebcline, char *ptr) const 
 {
-	//メモっとく
+	//変換先ポインタメモっとく
 	char *memo = ptr;
 
-	//オフセット
+	//変換元のポインタをオフセット移動
 	uchar *ebc = (uchar *)(ebcline + offset);
 
 
@@ -295,6 +295,7 @@ void cobol::ffd::conv(const char *ebcline, char *ptr) const
 		//--------------------------------------------
 		for (int i = 0; i < real; i++)
 		{
+			//WORD単位の変換
 			uchar hi = *(ebc++);
 			uchar lo = *(ebc++);
 			ushort jef  = hi << 8 | lo;
@@ -312,11 +313,13 @@ void cobol::ffd::conv(const char *ebcline, char *ptr) const
 		bool even = (left + right) % 2 == 0;
 		for (int i = 0; i < real; i++)
 		{
+			//WORD単位で16進表記
 			uchar c = *(ebc++);
 			uchar buf[3] = {0};
 			::snprintf((char *)buf, sizeof(buf), "%02x", c);
 			uchar hi = buf[0];
 			uchar lo = buf[1];
+
 			if (i == 0 && even)
 			{
 				//バイト数が偶数の場合先頭の１バイトは捨てる
@@ -342,10 +345,12 @@ void cobol::ffd::conv(const char *ebcline, char *ptr) const
 		//--------------------------------------------
 		for (int i = 0; i < real; i++)
 		{
+			//BYTE単位にEBCDIC>>SJIS変換
 			*(ptr++) = ebcdic.ebc2sjis_byte(*(ebc++));
 		}
 		if (sig)
 		{
+			//サインド項目
 			ptr--;//１つ戻る（末尾を指す）
 			uchar c = (uchar)*ptr;
 
@@ -363,6 +368,7 @@ void cobol::ffd::conv(const char *ebcline, char *ptr) const
 			else if (BETWEEN('a', c, 'i')) { n = c - 'a'; minus = false; }
 			else if (BETWEEN('j', c, 'r')) { n = c - 'j'; minus = true ; }
 			
+			//末尾の文字（数字）をセット
 			*ptr = '0' + n;
 
 		}
@@ -371,7 +377,7 @@ void cobol::ffd::conv(const char *ebcline, char *ptr) const
 	//------------------------------------------------
 	//- 最終調整します
 	//------------------------------------------------
-	//ポインタ戻す
+	//変換先ポインタ戻す
 	ptr = memo;
 
 	if (sig)
@@ -379,7 +385,7 @@ void cobol::ffd::conv(const char *ebcline, char *ptr) const
 		//--------------------------------------------
 		//- サインド項目
 		//--------------------------------------------
-		//後ろにずらす
+		//１文字ずつ後ろにずらす
 		int size = left + right;
 		char *p = ptr + size;
 		for (int i = 0; i < size; i++)
@@ -395,10 +401,12 @@ void cobol::ffd::conv(const char *ebcline, char *ptr) const
 		//--------------------------------------------
 		//- 小数点以下
 		//--------------------------------------------
-		//小数点部分を後ろにずらす
+		//小数点を挿入する位置をポイント
 		char *p = ptr + left;
 		if (sig) p++;
-		char *point = p;//小数点を入れる位置を記憶
+		//小数点を入れる位置を記憶
+		char *point = p;
+		//小数点部分を１文字ずつ後ろにずらす
 		for (int i = 0; i < right; i++)
 		{
 			p++;
