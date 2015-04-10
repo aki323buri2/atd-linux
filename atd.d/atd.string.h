@@ -29,14 +29,14 @@ struct string : public object, public std::string
 	//toint(), tointbase64()における'base'が0の場合、
 	//Cの定数表記に従う。
 	//つまり、0が先頭なら8進数、0xまたは0Xが先頭なら16進数、それ以外なら10進数
-	static int toint(const string &s, int base = 0);
-	static int64 toint64(const string &s, int base = 0);
+	static int toint(const string &s, int base = 10);
+	static int64 toint64(const string &s, int base = 10);
 	static double todouble(const string &s);
 
 	string enclose(const string &left, const string &right) const;
 	strings explode(const string &delimiter) const;
-	int toint(int base = 0) const;
-	int64 toint64(int base = 0) const;
+	int toint(int base = 10) const;
+	int64 toint64(int base = 10) const;
 	double todouble() const;
 
 	//文字列検索
