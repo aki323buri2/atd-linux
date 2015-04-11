@@ -40,20 +40,32 @@ int run(int argc, char **argv)
 {
 	string home = path::dirname(app.dirname);
 
+	//コマンドライン引数オブジェクト
 	struct commandline commandline;
-	struct { string &ebc, &fdg, &json; } arg = 
+	struct { string &ebc, &fdg, &keys; } arg = 
 	{
 		commandline.value_of("ebc"), 
-		commandline.value_of("fdg"), 
-		commandline.value_of("json"), 
+		commandline.value_of("fdg"), 		
+		commandline.value_of("keys"), 
 	};
-	//コマンドライン引数解析
-	notify("... option parsing ...");
+	
+	//-----シングルレコードパターン-----//
+	commandline.value_of("ebc") = home + "/ebc/TMASAPF.RDMLIB";
+	commandline.value_of("ebc") = home + "/ebc/ZAIKOPF.KCRDMLB";
+	commandline.value_of("fdg") = "";
+	//-----シングルレコードパターン-----//
 
-//	commandline.value_of("ebc") = home + "/ebc/TMASAPF.RDMLIB";
-//	commandline.value_of("ebc") = home + "/ebc/ZAIKOPF.KCRDMLB";
+	//-----マルチレコードパターン-----//
 	commandline.value_of("ebc") = "/home/ebcdic-files/TDBK1D1.D0209";
-	commandline.value_of("fdg") = home + "/fdg/TUF010.TXT";
+	commandline.value_of("fdg") = 
+		""  + home + "/fdg/TUF010.TXT"
+		";" + home + "/fdg/TUF020.TXT"
+		";" + home + "/fdg/TUF090.TXT"
+		;
+	commandline.value_of("keys") = "1,2,3";
+	//-----マルチレコードパターン-----//
+
+	//コマンドライン引数解析
 	commandline.apply(argc, argv);
 
 	//Usage!
@@ -61,45 +73,52 @@ int run(int argc, char **argv)
 	{
 		cerr << 
 			"" CRLF
-			"Usage: " << app.basename << ":"
-			" [-e --ebc=<path>]" 
-			" [-d --fdg=<path>]" 
+			"Usage: " << app.basename << " "
+			"[Options]" 
 			CRLF
 			"Options: " CRLF
-			"  -e --ebc=<path>    : EBCDICファイルのパス" CRLF
-			"  -d --fdg=<path>    : FDG列定義ファイルのパス" CRLF
+			"  -h --help -?               : ヘルプの表示" CRLF
+			"  -e --ebc=<path>            : EBCDICファイルのパス" CRLF
+			"  -d --fdg=<path[;path2;..]> : FDG列定義ファイルのパス（リストも可-';'区切り-）" CRLF
+			"  -k --keys=<key1,key2,>     : マルチレコードの判別文字リスト-','区切り-" CRLF
 			<< endl;
 		return 1;
 	}
 
-	//FDGパスが指定されていない場合は自動認識
+	//FDGが空白ならばEBCファイル名を元に所定の場所探す
 	if (!arg.fdg.length())
 	{
-		arg.fdg = search_fdg(arg.ebc);
+		arg.fdg = searchfdg(arg.ebc);
 	}
+
+	//コマンドライン引数のディスプレイ
+	notify("");
+	notify("---- command line options    ----");
+	commandline.demo(notify);
+
+	//引数チェック
 	if (!arg.fdg.length())
 	{
-		//仮（エラー表示用といってもよい）
-		arg.fdg = arg.ebc + ".FDG.txt";
+		notify("FDGが見つかりません");
+		return 1;
 	}
+
+	//パラメータの配列化
+	struct { strings fdg, key, json; } list;
+	list.fdg = arg.fdg .explode(";");
+	list.key = arg.keys.explode(",");
 
 	//出力ディレクトリの作成
 	struct { string dir; } tran;
 	tran.dir = app.dirname + "/tran";
 	path::mkdir(tran.dir);
 
-	//出力JSONのパス
-	arg.json = tran.dir + "/" + path::basename(arg.ebc) + ".tran.json";
-
-	//コマンドライン引数のディスプレイ
-	notify("---- command line options    ----");
-	commandline.demo(notify, 7);
-
 	//必須ファイルorディレクトリの存在チェック
+	notify("");
 	notify("---- file or directory check ----");
 	bool ok = true;
-	ok = fcheck::check(arg.ebc) && ok;
-	ok = fcheck::check(arg.fdg) && ok;
+	ok = fcheck::check(arg.ebc ) && ok;
+	ok = fcheck::check(list.fdg) && ok;
 	ok = fcheck::check(tran.dir) && ok;
 
 	if (!ok)
@@ -108,10 +127,7 @@ int run(int argc, char **argv)
 		return 1;
 	}
 
-	// test(arg.fdg);
-	test(arg.fdg + ";" + arg.ebc + ";" + arg.json);
-	
-
+	//出力JSONのパス
 	return 0;
 }
 
@@ -119,6 +135,7 @@ int run(int argc, char **argv)
 #include "picojson.h"
 void test(const string &text)
 {	
+	notify("");
 	notify("##########################################################");
 	strings ss = text.explode(";");
 	struct { string fdg, ebc, json; } path;
@@ -258,6 +275,8 @@ void commandline::apply(int argc, char **argv)
 		{"help", no_argument		, NULL, 'h'}, 
 		{"ebc" , required_argument	, NULL, 'e'}, 
 		{"fdg" , required_argument	, NULL, 'd'}, 
+		{"keys", required_argument	, NULL, 'k'}, 
+		{"look-suffix", no_argument	, NULL, 's'}, 
 		{0}
 	};
 	std::map<int, string> map;
@@ -282,6 +301,9 @@ void commandline::apply(int argc, char **argv)
 		case '?':
 		case 'h':
 			showhelp = true;
+			break;
+		case 's':
+			looksuffix = true;
 			break;
 		default: 
 			value_of(map[opt]) = optarg;
