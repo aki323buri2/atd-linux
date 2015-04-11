@@ -1,5 +1,8 @@
 // test.cpp
 #include "common.h"
+#include "cobol.h"
+#include "thread.h"
+
 void test(
 	string ebc
 	, const strings &fdgs
@@ -8,4 +11,5 @@ void test(
 	, bool looksuffix
 )
 {
+	notify(ebc);
 }

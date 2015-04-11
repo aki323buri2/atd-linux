@@ -147,7 +147,10 @@ int run(int argc, char **argv)
 	}
 	cout << list.json.implode("\n") << endl;
 
+	notify("");
+	notify("#################################################");
 	test(arg.ebc, list.fdg, list.key, list.json, commandline.looksuffix);
+	notify("#################################################");
 
 	return 0;
 }
