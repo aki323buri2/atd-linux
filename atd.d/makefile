@@ -12,7 +12,7 @@ CXXFLAGS = -Wall -O3 -MMD -MP -fPIC
 
 DLLLDFLAGS = -static -shared
 EXELDFLAGS = -static
-# LIBS = -lebc2json -latd -lshlwapi -lregex -lpsapi -lgdi32
+LIBS = -lpthread
 
 CPPROOT = ..
 ATDD = $(CPPROOT)/atd.d
