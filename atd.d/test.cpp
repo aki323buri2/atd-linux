@@ -62,6 +62,14 @@ void test(
 		{
 			destroy();
 		}
+		void close()
+		{
+			for (iterator i = begin(), e = end(); i != e; ++i)
+			{
+				std::ofstream *ofs = *i;
+				ofs->close();
+			}
+		}
 		void destroy()
 		{
 			for (iterator i = begin(), e = end(); i != e; ++i)
@@ -112,7 +120,7 @@ void test(
 		size_t ix = kk[c];
 
 		std::ofstream &ofs = *ofss[ix];
-		ofs << line;
+		ofs.write(&line[0], line.size());
 
 		if (done % step == 0)
 		{
@@ -121,6 +129,9 @@ void test(
 		done++;
 	}
 	cout << endl;
+
+	ofss.close();
+
 	notifyf(">> done = %10d", done);
 	for (std::map<uchar, size_t>::iterator i = kk.begin(), e = kk.end()
 		; i != e; ++i)
