@@ -78,15 +78,16 @@ bool cobol::ffd::parsecobol(const string &line)
 	//------------------------------------------------
 	//小数部桁数解析
 	string s = match[8];//"V9(2)" or "V99"
-	string n = match[9];//"2" or "99"
 	if (s.find('(') != string::npos)
 	{
 		//小数部記述に'('があれば V9(2)
+		string n = match[9];//"2"
 		right = n.toint();
 	}
-	else
+	else if (s.length())
 	{
 		//小数部記述に'('が無ければ V99
+		string n = match[10];//"99";
 		right = n.length();
 	}
 	//------------------------------------------------
