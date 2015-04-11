@@ -108,6 +108,13 @@ int run(int argc, char **argv)
 	list.fdg = arg.fdg .explode(";");
 	list.key = arg.keys.explode(",");
 
+	//マルチレコード要素数チェック
+	if (list.fdg.size() && (list.fdg.size() > list.key.size()))
+	{
+		notify("判別キー配列の要素数が不足しています");
+		return 1;
+	}
+
 	//出力ディレクトリの作成
 	struct { string dir; } tran;
 	tran.dir = app.dirname + "/tran";
@@ -128,6 +135,18 @@ int run(int argc, char **argv)
 	}
 
 	//出力JSONのパス
+	for (strings::iterator b = list.fdg.begin(), i = b, e = list.fdg.end()
+		; i != e; ++i)
+	{
+		list.json.push_back(
+			tran.dir 
+			+ "/" + path::basename(arg.ebc) 
+			+ "."+ list.key[i - b]
+			+ "." + path::remove_extension(path::basename(*i))
+			+ ".tran.json");
+	}
+	cout << list.json.implode("\n") << endl;
+
 	return 0;
 }
 
