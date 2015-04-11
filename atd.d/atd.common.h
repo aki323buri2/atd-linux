@@ -25,4 +25,5 @@ using std::cin;
 using std::cout;
 using std::cerr;
 using std::endl;
+using std::flush;
 #endif//__atd_common_h__
