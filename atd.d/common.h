@@ -35,6 +35,7 @@ int run(int argc, char **argv);
 struct commandline : public generic::properties
 {
 	bool showhelp;
+	bool looksuffix;
 
 	commandline()
 	: showhelp(false)
@@ -46,11 +47,18 @@ struct commandline : public generic::properties
 		apply(argc, argv);
 	}
 	void apply(int argc, char **argv);
+
+	void demo(const generic::notify &notify)
+	{
+		generic::notifyf notifyf = notify;
+		generic::properties::demo(notify, 7);//★
+		notifyf("*> look-suffix : %s", looksuffix ? "true" : "false");
+	}
 };
 //====================================================
 //=　search fdg path
 //====================================================
-string search_fdg(const string &path)
+string searchfdg(const string &path)
 {	
 	string name = path::basename(path);
 	string root = path::dirname(path);
@@ -122,6 +130,16 @@ struct fcheck : public object
 		);
 
 		return exists;
+	}
+	static bool check(const strings &ss)
+	{
+		bool ok = true;
+		for (strings::const_iterator i = ss.begin(), e = ss.end()
+			; i != e; ++i)
+		{
+			ok = check(*i) && ok;
+		}
+		return ok;
 	}
 };
 //====================================================
