@@ -11,7 +11,7 @@ objects &objects::entryf(int count, ...)
 {
 	va_list va;
 	va_start(va, count);
-	for (int i = 0; i < 0; i++)
+	for (int i = 0; i < count; i++)
 	{
 		push_back(va_arg(va, object *));
 	}
