@@ -15,7 +15,7 @@ struct object
 //====================================================
 struct objects : public object, public std::vector<object *>
 {
-	objects();
+	objects() { }
 	objects(object *o0)																												{ entry(o0); }
 	objects(object *o0, object *o1)																									{ entry(o0, o1); }
 	objects(object *o0, object *o1, object *o2)																						{ entry(o0, o1, o2); }
