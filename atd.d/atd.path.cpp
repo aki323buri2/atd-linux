@@ -27,6 +27,11 @@ string path::basename(const string &path)
 
 	return ::basename(&s[0]);
 }
+//拡張子を除いたファイル名
+string path::filename(const string &path)
+{
+	return remove_extension(basename(path));
+}
 //カレンドディレクトリ取得
 string path::cwd()
 {

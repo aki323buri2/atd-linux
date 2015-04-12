@@ -11,6 +11,7 @@ struct path : public object
 {
 	static string dirname(const string &path);
 	static string basename(const string &path);
+	static string filename(const string &path);//拡張子を除いたファイル名
 
 	//カレントディレクトリ取得
 	static string cwd();
