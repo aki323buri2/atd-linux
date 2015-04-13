@@ -37,6 +37,7 @@ void test(
 		//FDGロード
 		j->fdgload();
 		j->ebcclear();
+		j->ebcopenappend();
 
 		//レコードサイズ
 		int rsizenew = j->fdg.rsize;
@@ -70,6 +71,10 @@ void test(
 		uchar c = ebcdic.ebc2sjis_byte((uchar)line[offset]);
 		//ジョブを選択
 		job *j = jj[c];
+		//ファイルに追記
+		std::ofstream &ofs = j->ofs;
+		ofs.write(&line[0], line.size());
+		//件数インクリメント
 		j->todo++;
 		//進捗
 		progress.indicate(done);
@@ -84,7 +89,14 @@ void test(
 		uchar c = i->first;
 		job *j = i->second;
 		int64 todo = j->todo;
-		notifyf("'%c' : todo %10lld", c, todo);
+		//分割EBCDICファイルをクローズ
+		std::ofstream &ofs = j->ofs;
+		ofs.close();
+		//分割EBCDICファイルのサイズ
+		string ebc = j->path.ebc;
+		int64 size = path::filesize(ebc);
+
+		notifyf("*> '%c' : %-10s has %10lld lines, %10lld bytes ", c, path::basename(ebc).c_str(), todo, size);
 	}
 
 }
