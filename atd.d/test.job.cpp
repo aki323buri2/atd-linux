@@ -39,4 +39,29 @@ job::map::~map()
 		erase(i);
 	}
 }
+void job::map::invoke_ebcdecode()
+{
+	std::vector<thread *> tt;
+	for (iterator i = begin(), e = end(); i != e; ++i)
+	{
+		job *j = i->second;
+		thread *t = new thread(thread::function(&job::ebcdecode, j));
+		tt.push_back(t);
+	}
+	for (std::vector<thread *>::iterator i = tt.begin(), e = tt.end()
+		; i != e; ++i)
+	{
+		thread *t = *i;
+		t->join();
+	}
+	cout << "ok?" << endl;
+}
+void job::ebcdecode()
+{
+	::sleep(1);
+	static mutex mx;
+	mx.lock();
+	cout << "??" << endl;
+	mx.unlock();
+}
  

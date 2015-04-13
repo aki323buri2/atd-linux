@@ -22,11 +22,15 @@ struct job : public object
 	void ebcopenappend();
 	void fdgload();
 
+	//EBCDICデコード
+	void ebcdecode();
+
 	struct map;
 };
 struct job::map : public object, public std::map<uchar, job *>
 {
 	~map();
+	void invoke_ebcdecode();
 };
 #endif//__test_job_h__
 

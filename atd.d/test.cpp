@@ -36,6 +36,7 @@ void test(
 		jj[c] = j;
 		//FDGロード
 		j->fdgload();
+		//分割EBCDICをクリアし追記モードで開いておく
 		j->ebcclear();
 		j->ebcopenappend();
 
@@ -63,6 +64,8 @@ void test(
 	//EBCDICファイルオープン
 	std::ifstream ifs;
 	ifs.open(ebc.c_str(), std::ios::binary | std::ios::in);
+
+	//EBCDICファイル振り分け処理
 	//レコードサイズごと処理
 	string line(rsize, 0);
 	while (ifs && ifs.read(&line[0], line.size()))
@@ -74,7 +77,7 @@ void test(
 		//ファイルに追記
 		std::ofstream &ofs = j->ofs;
 		ofs.write(&line[0], line.size());
-		//件数インクリメント
+		//TODO行数インクリメント
 		j->todo++;
 		//進捗
 		progress.indicate(done);
@@ -86,18 +89,25 @@ void test(
 	for (job::map::iterator i = jj.begin(), e = jj.end()
 		; i != e; ++i)
 	{
-		uchar c = i->first;
-		job *j = i->second;
-		int64 todo = j->todo;
+		uchar c = i->first;//判別キャラクタ
+		job *j = i->second;//該当ジョブ
 		//分割EBCDICファイルをクローズ
 		std::ofstream &ofs = j->ofs;
 		ofs.close();
+		//TODO行数
+		int64 todo = j->todo;
 		//分割EBCDICファイルのサイズ
 		string ebc = j->path.ebc;
 		int64 size = path::filesize(ebc);
 
-		notifyf("*> '%c' : %-10s has %10lld lines, %10lld bytes ", c, path::basename(ebc).c_str(), todo, size);
+		notifyf("*> '%c' : %s has %10lld lines, %10lld bytes "
+			, c
+			, path::basename(ebc).c_str()
+			, todo
+			, size
+		);
 	}
+	jj.invoke_ebcdecode();
 
 }
 //####################################################
