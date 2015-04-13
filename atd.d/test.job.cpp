@@ -56,12 +56,15 @@ void job::map::invoke_ebcdecode()
 	}
 	cout << "ok?" << endl;
 }
+
 void job::ebcdecode()
 {
-	::sleep(1);
+	static int sec = 0;
+	::sleep(sec++);
 	static mutex mx;
 	mx.lock();
 	cout << "??" << endl;
 	mx.unlock();
+	::sleep(2);
 }
  
