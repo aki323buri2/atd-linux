@@ -5,6 +5,8 @@ job::job(
 	, const string &fdg
 	, const string &json
 )
+: todo(0)
+, done(0)
 {
 	path.ebc = ebc;
 	path.fdg = fdg;
@@ -21,6 +23,11 @@ void job::ebcclear()
 void job::ebcopenappend()
 {
 	ofs.open(path.ebc.c_str(), std::ios::binary | std::ios::app);
+}
+void job::fdgload()
+{
+	std::ifstream ifs(path.fdg.c_str(), std::ios::in);
+	fdg.loadcobol(ifs);
 }
 job::map::~map()
 {
