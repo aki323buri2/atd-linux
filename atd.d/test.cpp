@@ -75,7 +75,7 @@ void test(
 		progress.indicate(done);
 		done++;
 	}
-	cout << endl;
+	progress.finish();
 	notifyf(">> done : %d lines", done);
 
 	for (job::map::iterator i = jj.begin(), e = jj.end()

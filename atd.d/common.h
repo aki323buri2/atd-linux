@@ -179,5 +179,9 @@ struct progressbar : public object
 		progress += unit;
 		cout << "\r" << progress << flush;
 	}
+	void finish()
+	{
+		cout << endl;
+	}
 };
 #endif//__common_h__
