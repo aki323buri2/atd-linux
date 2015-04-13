@@ -151,4 +151,33 @@ struct fcheck : public object
 	}
 };
 //====================================================
+//= progressbar
+//====================================================
+struct progressbar : public object
+{
+	int64 todo, done;
+	int steps, block;
+	string progress, unit;
+	progressbar()
+	: todo(0), done(0), steps(1), block(0)
+	, unit("#")
+	{
+	}
+	void coordinate(int64 todo, int steps)
+	{
+		this->todo = todo;
+		this->steps = steps;
+		block = todo / (!steps ? 1 : steps);
+	}
+	void reset()
+	{
+		progress = "";
+	}
+	void indicate(int64 done)
+	{
+		if (done % block) return;
+		progress += unit;
+		cout << "\r" << progress << flush;
+	}
+};
 #endif//__common_h__
