@@ -42,12 +42,17 @@ job::map::~map()
 void job::map::invoke_ebcdecode()
 {
 	std::vector<thread *> tt;
+
+	//監視スレッド
+	tt.push_back(new thread(thread::function(&job::map::join, this)));
+
 	for (iterator i = begin(), e = end(); i != e; ++i)
 	{
 		job *j = i->second;
 		thread *t = new thread(thread::function(&job::ebcdecode, j));
 		tt.push_back(t);
 	}
+
 	for (std::vector<thread *>::iterator i = tt.begin(), e = tt.end()
 		; i != e; ++i)
 	{
@@ -79,7 +84,6 @@ struct board::item
 	item(board::map *owner, const string &caption, int64 todo)
 	: owner(owner), caption(caption), todo(todo), done(0)
 	{
-		lock lock;
 		denom = todo / 20;//★
 	}
 	void update(int64 done);
@@ -87,6 +91,7 @@ struct board::item
 static 
 struct board::map : public object, public std::vector<item>
 {
+	struct cond cond;
 	item &entry(const string &caption, int64 todo)
 	{
 		push_back(item(this, caption, todo));
@@ -110,19 +115,53 @@ void job::ebcdecode()
 		board.update(done);
 		done++;
 	}
+	board.update(done);
 }
 void board::item::update(int64 done)
 {
+	this->done = done;
 	if (done % denom) return;
-	owner->update();
+	if (owner) owner->cond.signal();
+}
+void job::map::join()
+{
+	while (true)
+	{
+		mutex mt;
+		bb.cond.wait(mt);
+		bb.update();
+		
+		bool stop = true;
+		for (iterator i = begin(), e = end(); i != e; ++i)
+		{
+			job *j = i->second;
+			int64 todo = j->todo;
+			int64 done = j->done;
+			if (todo > done)
+			{
+				stop = false;
+			}
+		}
+		if (stop) break;
+	}
+	cout << endl;
 }
 void board::map::update()
 {
-	static mutex mt;
-	size_t size = this->size();
-	mt.lock();
-	// cout << "\r";
-	cout << "?" << size;
-	cout << flush;
-	mt.unlock();
+	strings ss;
+	for (iterator i = begin(), e = end(); i != e; ++i)
+	{
+		item &b = *i;
+		const string &caption = b.caption;
+		int64 todo = b.todo;
+		int64 done = b.done;
+		ss.entry(string::format(
+			"%s : %lld / %lld lines done"
+			, caption.c_str()
+			, done
+			, todo
+		));
+	}
+	cout << "\r";
+	cout << ss.implode(" | ");
 }
