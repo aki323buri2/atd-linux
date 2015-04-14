@@ -57,14 +57,72 @@ void job::map::invoke_ebcdecode()
 	cout << "ok?" << endl;
 }
 
+namespace {;
+struct lock
+{
+	static mutex m;
+	lock() { m.lock(); }
+	~lock() { m.unlock(); }
+};
+mutex lock::m;
+struct board 
+{
+	struct item;
+	struct map;
+};
+struct board::item 
+{
+	board::map *owner;
+	string caption;
+	int64 todo, done;
+	int64 denom;
+	item(board::map *owner, const string &caption, int64 todo)
+	: owner(owner), caption(caption), todo(todo), done(0)
+	{
+		lock lock;
+		denom = todo / 20;//★
+	}
+	void update(int64 done);
+};
+static 
+struct board::map : public object, public std::vector<item>
+{
+	item &entry(const string &caption, int64 todo)
+	{
+		push_back(item(this, caption, todo));
+		return back();
+	}
+	void update();
+} bb;
+}//<<anonymous>>
 void job::ebcdecode()
 {
-	static int sec = 3;
-	::sleep(sec--);
-	static mutex mx;
-	mx.lock();
-	cout << "??" << endl;
-	mx.unlock();
-	::sleep(2);
+	string::ebcdic ebcdic;
+	int rsize = fdg.rsize;
+	int64 size = path::filesize(path.ebc);
+	int64 todo = size / rsize;
+	board::item &board = bb.entry(path::basename(path.json), todo);
+
+	string line(rsize, 0);
+	ifs.open(path.ebc.c_str(), std::ios::binary | std::ios::in);
+	while (ifs && ifs.read(&line[0], line.size()))
+	{
+		board.update(done);
+		done++;
+	}
 }
- 
+void board::item::update(int64 done)
+{
+	if (done % denom) return;
+	owner->update();
+}
+void board::map::update()
+{
+	static mutex mt;
+	size_t size = this->size();
+	mt.lock();
+	// cout << "\r";
+	cout << "?" << size;
+	cout << flush;
+	mt.unlock();
+}
