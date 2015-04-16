@@ -1,8 +1,8 @@
-NAME = test
+NAME = ebc2json
 BINDIR = ./bin
 OBJDIR = ./obj
 TARGET = $(BINDIR)/$(NAME).so
-EXEOUT = $(BINDIR)/$(NAME).exe
+EXEOUT = $(BINDIR)/$(NAME)
 
 SOURCES = $(wildcard *.cpp)
 OBJECTS = $(addprefix $(OBJDIR)/,$(SOURCES:.cpp=.o))
