@@ -39,6 +39,16 @@ job::map::~map()
 		erase(i);
 	}
 }
+//----------------------------------------------------
+namespace {;//<<anonymouse>>
+struct lock : public object
+{
+	struct mutex &mutex;
+	lock(struct mutex &mutex) : mutex(mutex) { mutex.lock(); }
+	~lock() { mutex.unlock(); }
+};
+}//<<anonymouse>>
+//----------------------------------------------------
 void job::map::invoke_ebcdecode()
 {
 }
