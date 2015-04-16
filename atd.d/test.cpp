@@ -107,6 +107,8 @@ void test(
 			, size
 		);
 	}
+
+	//それぞれのスレッドで並列変換実行
 	jj.invoke_ebcdecode();
 
 }
