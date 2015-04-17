@@ -47,11 +47,6 @@ struct lock : public object
 	lock(struct mutex &mutex) : mutex(mutex) { mutex.lock(); }
 	~lock() { mutex.unlock(); }
 };
-struct automutex : public mutex
-{
-	automutex() { lock(); }
-	~automutex() { unlock(); }
-};
 }//<<anonymouse>>
 //----------------------------------------------------
 void job::map::invoke_ebcdecode()
