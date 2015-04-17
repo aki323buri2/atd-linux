@@ -52,8 +52,25 @@ struct automutex : public mutex
 	automutex() { lock(); }
 	~automutex() { unlock(); }
 };
+struct event : public cond
+{
+	struct mutex mutex;
+	void lock()
+	{
+		mutex.lock();
+	}
+	void unlock()
+	{
+		mutex.unlock();
+	}
+	void wait()
+	{
+		cond::wait(mutex);
+	}
+};
 }//<<anonymouse>>
 //----------------------------------------------------
 void job::map::invoke_ebcdecode()
 {
+
 }
