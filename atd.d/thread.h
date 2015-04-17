@@ -50,6 +50,10 @@ struct thread : public object
 	~thread();
 	void *kernel();
 	void join();
+	
+	template<typename T>
+	thread(void (T::*method)(), T* offset) : func(method, offset) { }
+	thread(function::func_type func) : func(func) { }
 };
 #endif//__thread_h__
 
