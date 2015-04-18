@@ -68,9 +68,63 @@ struct event : public cond
 		cond::wait(mutex);
 	}
 };
+static 
+struct sync : public object
+{
+	mutex lock;
+	event signal;
+	void notify(const string &s)
+	{
+		struct lock lock(this->lock);
+		cout << s << endl;
+	}
+	void watcher();
+} sc;
 }//<<anonymouse>>
 //----------------------------------------------------
 void job::map::invoke_ebcdecode()
 {
+	sc.notify("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
+	managed::objects oo;
+	std::vector<thread *> tt;
+
+	thread *t = new thread(&sync::watcher, &sc);
+	tt.push_back(t);
+	oo.entry(t);
+
+	for (iterator i = begin(), e = end(); i != e; ++i)
+	{
+		job *j = i->second;
+		thread *t = new thread(&job::ebcdecode, j);
+		tt.push_back(t);
+		oo.entry(t);
+		sc.notify(j->path.ebc);
+	}
+	
+	for (std::vector<thread *>::iterator i = tt.begin(), e = tt.end()
+		; i != e; ++i)
+	{
+		thread *t = *i;
+		t->join();
+	}
+	sc.notify("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+}
+void job::ebcdecode()
+{
+	int howmany = 3;
+	for (int i = 0; i < howmany; i++)
+	{
+		sc.signal.signal();
+		::sleep(2);
+	}
+	sc.notify(path.json);
+}
+void sync::watcher()
+{
+	while (true)
+	{
+		sc.signal.wait();
+		sc.notify("signal!!");
+	}
 }
