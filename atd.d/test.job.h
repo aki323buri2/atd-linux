@@ -38,6 +38,7 @@ struct job::board : public object
 	string caption;
 	int64 todo;
 	int64 done;
+	bool stopped;
 	board();
 	board(job &job);
 	board &reload(job &job);

@@ -46,6 +46,7 @@ job::board::board(job &job)
 , json(job.path.json)
 , todo(job.todo)
 , done(job.done)
+, stopped(false)
 {
 	caption = path::basename(json);
 	job.myboard = this;
@@ -90,11 +91,29 @@ struct sync : public object, std::vector<job::board *>
 {
 	mutex lock;
 	event signal;
+	~sync()
+	{
+		for (iterator i = begin(); i != end(); ++i)
+		{
+			delete *i;
+			i = erase(i);
+		}
+	}
 	void notify(const string &s)
 	{
 		static mutex m;
 		struct lock lock(m);
 		cout << s << endl;
+	}
+	bool stopped() const
+	{
+		for (const_iterator i = begin(), e = end()
+			; i != e; ++i)
+		{
+			job::board *b = *i;
+			if (!b->stopped) return false;
+		}
+		return true;
 	}
 
 	void watcher();
@@ -151,12 +170,17 @@ void job::ebcdecode()
 		sc.signal.unlock();
 		::sleep(1);
 	}
+	sc.signal.lock();
+	myboard->stopped = true;
+	sc.signal.signal();
+	sc.signal.unlock();
 }
 void sync::watcher()
 {
 	while (true)
 	{
 		sc.signal.wait();
+		if (stopped()) break;
 		showboards();
 	}
 }
