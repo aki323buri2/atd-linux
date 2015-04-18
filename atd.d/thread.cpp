@@ -63,6 +63,13 @@ void cond::wait(mutex &mutex)
 thread::thread(const function &func)
 : func(func)
 {
+	start();
+}
+thread::~thread()
+{
+}
+void thread::start()
+{
 	struct call
 	{
 		static void *back(void *data)
@@ -71,9 +78,6 @@ thread::thread(const function &func)
 		}
 	};
 	::pthread_create(&th, NULL, call::back, (void *)this);
-}
-thread::~thread()
-{
 }
 void *thread::kernel()
 {

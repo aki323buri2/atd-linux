@@ -48,12 +48,13 @@ struct thread : public object
 	pthread_t th;
 	thread(const function &func);
 	~thread();
+	void start();
 	void *kernel();
 	void join();
 
 	template <typename T>
-	thread(void (T::*method)(), T *offset) : func(method, offset) { }
-	thread(function::func_type func) : func(func) { }
+	thread(void (T::*method)(), T *offset) : func(method, offset) { start(); }
+	thread(function::func_type func) : func(func) { start(); }
 };
 #endif//__thread_h__
 
