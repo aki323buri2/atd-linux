@@ -93,7 +93,7 @@ struct sync : public object, std::vector<job::board *>
 	event signal;
 	~sync()
 	{
-		for (iterator i = begin(); i != end(); ++i)
+		for (iterator i = begin(); i != end(); )
 		{
 			delete *i;
 			i = erase(i);
@@ -153,11 +153,12 @@ void job::map::invoke_ebcdecode()
 		thread *t = *i;
 		t->join();
 	}
+	t->join();
 	sc.notify("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 }
 void job::ebcdecode()
 {
-	int howmany = 10;
+	int howmany = 3;
 	for (int i = 0; i < howmany; i++)
 	{
 		done++;
