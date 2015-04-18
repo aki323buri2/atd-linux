@@ -7,6 +7,7 @@ job::job(
 )
 : todo(0)
 , done(0)
+, myboard(0)
 {
 	path.ebc = ebc;
 	path.fdg = fdg;
@@ -39,6 +40,23 @@ job::map::~map()
 		erase(i);
 	}
 }
+job::board::board() : todo(0), done(0) { }
+job::board::board(job &job) 
+: ebc(job.path.ebc)
+, json(job.path.json)
+, todo(job.todo)
+, done(job.done)
+{
+	caption = path::basename(json);
+	job.myboard = this;
+}
+job::board &job::board::reload(job &job)
+{
+	todo = job.todo;
+	done = job.done;
+	return *this;
+}
+
 //----------------------------------------------------
 namespace {;//<<anonymouse>>
 struct lock : public object
@@ -68,23 +86,32 @@ struct event : public cond
 		cond::wait(mutex);
 	}
 };
-static 
-struct sync : public object
+struct sync : public object, std::vector<job::board *>
 {
 	mutex lock;
 	event signal;
 	void notify(const string &s)
 	{
-		struct lock lock(this->lock);
+		static mutex m;
+		struct lock lock(m);
 		cout << s << endl;
 	}
+
 	void watcher();
-} sc;
+	void showboards();
+};
+static sync sc;
 }//<<anonymouse>>
 //----------------------------------------------------
 void job::map::invoke_ebcdecode()
 {
 	sc.notify("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
+	for (iterator i = begin(), e = end(); i != e; ++i)
+	{
+		job *j = i->second;
+		sc.push_back(new job::board(*j));
+	}
 
 	managed::objects oo;
 	std::vector<thread *> tt;
@@ -99,7 +126,6 @@ void job::map::invoke_ebcdecode()
 		thread *t = new thread(&job::ebcdecode, j);
 		tt.push_back(t);
 		oo.entry(t);
-		sc.notify(j->path.ebc);
 	}
 	
 	for (std::vector<thread *>::iterator i = tt.begin(), e = tt.end()
@@ -112,19 +138,48 @@ void job::map::invoke_ebcdecode()
 }
 void job::ebcdecode()
 {
-	int howmany = 3;
+	int howmany = 10;
 	for (int i = 0; i < howmany; i++)
 	{
+		done++;
+		sc.signal.lock();
+		if (myboard)
+		{
+			myboard->reload(*this);
+		}
 		sc.signal.signal();
-		::sleep(2);
+		sc.signal.unlock();
+		::sleep(1);
 	}
-	sc.notify(path.json);
 }
 void sync::watcher()
 {
 	while (true)
 	{
 		sc.signal.wait();
-		sc.notify("signal!!");
+		showboards();
 	}
+}
+void sync::showboards()
+{
+	static mutex m;
+	struct lock lock(m);
+
+	strings ss;
+	for (iterator i = begin(), e = end(); i != e; ++i)
+	{
+		job::board *board = *i;
+		string caption = board->caption;
+		int64 todo = board->todo;
+		int64 done = board->done;
+
+		string s = string::format(
+			"%-20s : %lld/%lld"
+			, caption.c_str()
+			, done
+			, todo
+		);
+		ss.entry(s);
+	}
+	sc.notify(ss.implode(" | "));
 }
