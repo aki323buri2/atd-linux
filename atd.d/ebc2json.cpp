@@ -12,6 +12,8 @@ void execute::parallel(
 )
 {
 	job::map jj;
-	jj.init(fdgs, keys, jsons);
+	jj.init(ebc, fdgs, keys, jsons);
 	jj.read(ebc, looksuffix);
+
+	jj.demo(notify);
 }

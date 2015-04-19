@@ -33,9 +33,42 @@ void job::map::clear()
 		erase(p);
 	}
 }
-void job::map::init(const strings &fdgs, const strings &keys, const strings &jsons)
+void job::map::init(const string &ebc, const strings &fdgs, const strings &keys, const strings &jsons)
 {
+	for (strings::const_iterator 
+		  f = fdgs .begin(), fe = fdgs .end()
+		, k = keys .begin(), ke = keys .end()
+		, j = jsons.begin(), je = jsons.end()
+		; f != fe && k != ke && j != je; ++f, ++k, ++j
+	)
+	{
+		const string &key = *k;
+		const string &fdg = *f;
+		const string &json = *j;
+		struct { string ebc; } split;
+		split.ebc = ebc + "." + key + "." + path::filename(fdg) + ".tran.json";
+
+		insert(value_type(key[0], new job(split.ebc, fdg, json)));
+	}
 }
 void job::map::read(const string &ebc, bool looksuffix)
 {
+}
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+void job::map::demo(const generic::notify &notify) const 
+{
+	for (const_iterator i = begin(), e = end(); i != e; ++i)
+	{
+		i->second->demo(notify);
+	}
+}
+void job::demo(const generic::notify &notify) const 
+{
+	generic::notifyf notifyf = notify;
+	notifyf(
+		"*> %s %lld/%lld"
+		, path.json.c_str(), todo, done
+	);
 }

@@ -25,14 +25,18 @@ struct job : public object
 		, const string &json
 	);
 	~job();
+
+	void demo(const generic::notify &notify) const;
 };
 struct job::map : public object, public std::map<uchar, job *>
 {
 	map();
 	~map();
 	void clear();
-	void init(const strings &fdgs, const strings &keys, const strings &jsons);
+	void init(const string &ebc, const strings &fdgs, const strings &keys, const strings &jsons);
 	void read(const string &ebc, bool looksuffix);
+
+	void demo(const generic::notify &notify) const;
 };
 }//namespace ebc2json
 #endif//__ebc2json_job_h__
