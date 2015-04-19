@@ -13,7 +13,7 @@ struct job : public object
 	struct map;
 
 	struct { string ebc, fdg, json; } path;
-	struct { std::ifstream ebc, fdg; } ifs;
+	struct { std::ifstream ebc; } ifs;
 	struct { std::ofstream ebc, json; } ofs;
 	cobol::fdg fdg;
 	int64 todo, done;
@@ -30,11 +30,15 @@ struct job : public object
 };
 struct job::map : public object, public std::map<uchar, job *>
 {
+	std::ifstream ifs;
+	int rsize;
+	int64 fsize;
+
 	map();
 	~map();
 	void clear();
 	void init(const string &ebc, const strings &fdgs, const strings &keys, const strings &jsons);
-	void read(const string &ebc, bool looksuffix);
+	void read(bool looksuffix);
 
 	void demo(const generic::notify &notify) const;
 };

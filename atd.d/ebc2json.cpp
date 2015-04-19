@@ -13,7 +13,7 @@ void execute::parallel(
 {
 	job::map jj;
 	jj.init(ebc, fdgs, keys, jsons);
-	jj.read(ebc, looksuffix);
+	jj.read(looksuffix);
 
 	jj.demo(notify);
 }
