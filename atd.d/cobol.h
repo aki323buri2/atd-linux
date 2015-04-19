@@ -74,6 +74,7 @@ struct cobol::fdg : public object, public std::vector<ffd>
 
 	//COBOLイメージのロード
 	void loadcobol(std::istream &is, const string &encfrom = "SJIS-WIN");
+	void loadcobol(const string &cobol, const string &encfrom = "SJIS-WIN");
 
 	//OCCURS展開
 	void expandto(fdg &that) const;

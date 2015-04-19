@@ -124,6 +124,20 @@ void cobol::fdg::clear()
 //====================================================
 //= 入力ストリームからロード
 //====================================================
+void cobol::fdg::loadcobol(const string &cobol, const string &encfrom)
+{
+	std::istream *is = 0;
+	if (path::isfile(cobol))
+	{
+		is = new std::ifstream(cobol.c_str(), std::ios::in);
+	}
+	else
+	{
+		is = new std::stringstream(cobol.c_str());
+	}
+	loadcobol(*is, encfrom);
+	delete is;
+}
 void cobol::fdg::loadcobol(std::istream &is, const string &encfrom)
 {
 	//文字コードエンコーダ
