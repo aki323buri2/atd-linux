@@ -126,22 +126,22 @@ void cobol::fdg::clear()
 //====================================================
 void cobol::fdg::loadcobol(const string &cobol, const string &encfrom)
 {
-	struct smart
+	struct auto
 	{
 		std::istream *p;
-		smart() : p(0) { }
-		~smart() { delete p; }
-	} smart;
+		auto() : p(0) { }
+		~auto() { delete p; }
+	} auto;
 
 	if (path::isfile(cobol))
 	{
-		smart.p = new std::ifstream(cobol.c_str(), std::ios::in);
+		auto.p = new std::ifstream(cobol.c_str(), std::ios::in);
 	}
 	else
 	{
-		smart.p = new std::stringstream(cobol.c_str());
+		auto.p = new std::stringstream(cobol.c_str());
 	}
-	loadcobol(*smart.p, encfrom);
+	loadcobol(*auto.p, encfrom);
 }
 void cobol::fdg::loadcobol(std::istream &is, const string &encfrom)
 {
