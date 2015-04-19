@@ -1,10 +1,11 @@
 // test.cpp
+#include "test.h"
 #include "test.job.h"
-
-
+#include "common.h"
+namespace test {;
 //####################################################
-void test(
-	string ebc
+void tester::dotest(
+	  const string &ebc
 	, const strings &fdgs
 	, const strings &keys
 	, const strings &jsons
@@ -113,3 +114,4 @@ void test(
 
 }
 //####################################################
+}//namespace test

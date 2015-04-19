@@ -5,6 +5,7 @@
 #include "cobol.h"
 #include "thread.h"
 using namespace atd;
+namespace test {;
 struct job : public object
 {
 	struct board;
@@ -49,6 +50,7 @@ struct job::map : public object, public std::map<uchar, job *>
 	void invoke_ebcdecode();
 	void join();
 };
+}//namespace test {;
 #endif//__test_job_h__
 
 

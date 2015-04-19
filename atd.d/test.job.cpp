@@ -1,5 +1,6 @@
 // test.job.cpp
 #include "test.job.h"
+using namespace test;
 job::job(
 	  const string &ebc
 	, const string &fdg

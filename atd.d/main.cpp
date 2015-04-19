@@ -1,5 +1,6 @@
 // main.cpp
 #include "common.h"
+#include "test.h"
 void sleep(int milliseconds)
 {
 	int base = 1000; 
@@ -149,7 +150,7 @@ int run(int argc, char **argv)
 
 	notify("");
 	notify("#################################################");
-	test(arg.ebc, list.fdg, list.key, list.json, commandline.looksuffix);
+	test::tester::dotest(arg.ebc, list.fdg, list.key, list.json, commandline.looksuffix);
 	notify("#################################################");
 
 	return 0;

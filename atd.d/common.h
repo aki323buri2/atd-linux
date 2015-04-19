@@ -4,14 +4,6 @@
 #include "atd.h"
 using namespace atd;
 
-void test(
-	string ebc
-	, const strings &fdgs
-	, const strings &keys
-	, const strings &jsons
-	, bool looksuffix
-);//★
-
 static struct app
 {
 	string path, dirname, basename, filename, logfile;
