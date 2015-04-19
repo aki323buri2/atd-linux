@@ -76,15 +76,17 @@ void job::map::read(bool looksuffix)
 {
 	if (!fsize || !rsize) return;
 
+	//プログレスバー準備
 	int64 todo = fsize / rsize;
 	int64 done = 0;
-	int frames = 20; //★
+	int frames = 50; //★
 	int64 frame = todo / frames;
 	string progress;
 
 	//EBCDICエンコダ
 	string::ebcdic ebcdic;
 
+	//EBCDICファイルを１行ずつ処理
 	string line(rsize, 0);
 	iterator i;
 	while (ifs && ifs.read(&line[0], line.size()))
@@ -107,15 +109,24 @@ void job::map::read(bool looksuffix)
 		//ファイルを書き込む
 		ofs.write(&line[0], line.size());
 
+		//プログレスバー！！
 		if (done % frame == 0) 
 		{
 			progress += "#";
 			cout << "\r" << progress;
 			cout << flush;
 		}
+		//処理済み行数インクリメント
 		done++;
 	}
+	//プログレスバー終了
 	cout << endl;
+
+	//分割EBCDICファイルのストリームをクローズ
+	for (iterator i = begin(), e = end(); i != e; ++i)
+	{
+		i->second->ofs.ebc.close();
+	}
 
 }
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -133,6 +144,6 @@ void job::demo(const generic::notify &notify) const
 	generic::notifyf notifyf = notify;
 	notifyf(
 		"*> %s %lld/%lld"
-		, path::basename(path.json).c_str(), todo, done
+		, path::basename(path.json).c_str(), done, todo
 	);
 }
