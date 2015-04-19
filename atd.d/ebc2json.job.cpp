@@ -22,9 +22,16 @@ job::map::map()
 }
 job::map::~map()
 {
+	clear();
 }
 void job::map::clear()
 {
+	for (iterator i = begin(); i != end(); ++i)
+	{
+		delete i->second;
+		iterator p = i;
+		erase(p);
+	}
 }
 void job::map::init(const strings &fdgs, const strings &keys, const strings &jsons)
 {
