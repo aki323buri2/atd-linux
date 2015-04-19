@@ -53,9 +53,14 @@ struct thread : public object
 	void join();
 
 	template <typename T>
-	thread(void (T::*method)(), T *offset) : func(method, offset) { start(); }
-	thread(function::func_type func) : func(func) { start(); }
+	thread(void (T::*method)(), T *offset);
+	thread(function::func_type func);
 };
+template <typename T>
+thread::thread(void (T::*method)(), T *offset) : func(method, offset)
+{
+	start();
+}
 #endif//__thread_h__
 
 

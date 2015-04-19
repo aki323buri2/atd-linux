@@ -88,3 +88,7 @@ void thread::join()
 {
 	::pthread_join(th, NULL);
 }
+thread::thread(function::func_type func) : func(func)
+{
+	start();
+}
