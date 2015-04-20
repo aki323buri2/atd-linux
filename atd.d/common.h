@@ -13,7 +13,7 @@ static struct app
 		dirname = path::dirname(path);
 		basename = path::basename(path);
 		filename = path::remove_extension(basename);
-		logfile = path::rename_extension(path, ".log");
+		logfile = path + ".log";
 	}
 } app;
 static void notify(const string &s)
