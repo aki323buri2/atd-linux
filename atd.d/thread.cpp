@@ -63,7 +63,6 @@ void cond::wait(mutex &mutex)
 thread::thread(const function &func)
 : func(func)
 {
-	start();
 }
 thread::~thread()
 {
@@ -90,5 +89,4 @@ void thread::join()
 }
 thread::thread(function::func_type func) : func(func)
 {
-	start();
 }
