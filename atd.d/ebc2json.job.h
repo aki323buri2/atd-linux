@@ -52,7 +52,7 @@ struct job::board : public object
 	string json;
 	int64 todo;
 	board();
-	virtual void notify(int64 done);
+	virtual void notify(int64 done) = 0;
 };
 }//namespace ebc2json
 #endif//__ebc2json_job_h__
