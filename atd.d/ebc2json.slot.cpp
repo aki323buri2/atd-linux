@@ -49,4 +49,5 @@ void slot::list::join()
 }
 void slot::board::notify(int64 done)
 {
+	cout << json << " " << done << "/" << todo << endl;
 }

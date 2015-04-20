@@ -149,7 +149,30 @@ void job::notifyboard(int64 done)
 }
 void job::translate()
 {
+	if (!todo) return;
+
+	//通知単位
+	int frames = 20;//★
+	int64 frame = todo / frames;
+
+	//EBCDICファイルオープン
 	ifs.ebc.open(path.ebc.c_str(), std::ios::binary | std::ios::in);
+	done = 0;
+
+	//１行ずつ
+	int rsize = fdg.rsize;
+	string line(rsize, 0);
+	while (ifs.ebc && ifs.ebc.read(&line[0], line.size()))
+	{
+		//途中経過通知
+		if (done % frame == 0)
+		{
+			notifyboard(done);
+		}
+		done++;
+	}
+	notifyboard(done);
+
 	ifs.ebc.close();
 }
 //====================================================
