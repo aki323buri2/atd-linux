@@ -8,6 +8,7 @@ job::job(
 	, const string &json
 )
 : todo(0), done(0)
+, board(0)
 {
 	path.ebc = ebc;
 	path.fdg = fdg;
@@ -25,6 +26,7 @@ job::job(
 }
 job::~job()
 {
+	delete board;
 }
 job::map::map()
 : rsize(0)
@@ -72,6 +74,9 @@ void job::map::init(const string &ebc, const strings &fdgs, const strings &keys,
 	//EBCDICファイルを開く
 	ifs.open(ebc.c_str(), std::ios::in | std::ios::binary);
 }
+//====================================================
+//= job::map::read() -- EBCDICファイルをレコード区分で分割する
+//====================================================
 void job::map::read(bool looksuffix)
 {
 	if (!fsize || !rsize) return;
@@ -128,6 +133,24 @@ void job::map::read(bool looksuffix)
 		i->second->ofs.ebc.close();
 	}
 
+}
+//====================================================
+//= job::translate() -- EBCDICファイルを変換する
+//====================================================
+void job::attachboard(struct board *board)
+{
+	this->board = board;
+	board->json = path.json;
+	board->todo = todo;
+}
+void job::notifyboard(int64 done)
+{
+	if (board) board->notify(done);
+}
+void job::translate()
+{
+	ifs.ebc.open(path.ebc.c_str(), std::ios::binary | std::ios::in);
+	ifs.ebc.close();
 }
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

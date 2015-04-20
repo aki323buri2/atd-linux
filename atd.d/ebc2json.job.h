@@ -9,14 +9,15 @@ using namespace atd;
 namespace ebc2json {;
 struct job : public object 
 {
-	struct board;
 	struct map;
+	struct board;
 
 	struct { string ebc, fdg, json; } path;
 	struct { std::ifstream ebc; } ifs;
 	struct { std::ofstream ebc, json; } ofs;
 	cobol::fdg fdg;
 	int64 todo, done;
+	struct board *board;
 
 
 	job(
@@ -25,6 +26,10 @@ struct job : public object
 		, const string &json
 	);
 	~job();
+
+	void attachboard(struct board *board);
+	void notifyboard(int64 done);
+	void translate();
 
 	void demo(const generic::notify &notify) const;
 };
@@ -41,6 +46,13 @@ struct job::map : public object, public std::map<uchar, job *>
 	void read(bool looksuffix);
 
 	void demo(const generic::notify &notify) const;
+};
+struct job::board : public object
+{
+	string json;
+	int64 todo;
+	board();
+	virtual void notify(int64 done);
 };
 }//namespace ebc2json
 #endif//__ebc2json_job_h__
