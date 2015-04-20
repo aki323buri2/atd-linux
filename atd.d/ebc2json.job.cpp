@@ -16,12 +16,8 @@ job::job(
 	this->fdg.loadcobol(path.fdg);
 
 	//出力ストリームクリア＆追記オープン
-	ofs.ebc.open(ebc.c_str(), std::ios::out);
-	ofs.ebc.close();
-	ofs.ebc.open(ebc.c_str(), std::ios::app | std::ios::binary);
-	ofs.json.open(json.c_str(), std::ios::out);
-	ofs.json.close();
-	ofs.json.open(ebc.c_str(), std::ios::app | std::ios::binary);
+	ofs.ebc.open(ebc.c_str(), std::ios::out | std::ios::binary);
+	ofs.json.open(json.c_str(), std::ios::out | std::ios::binary);
 
 }
 job::~job()
@@ -151,29 +147,112 @@ void job::translate()
 {
 	if (!todo) return;
 
+	//変換データ格納用スケルトン作成
+	generic::properties conv = fdg.propskelton();
+
+	//SJIS->UTF-8エンコーダ
+	int buffersize = 0x400;//★
+	string::encoder encoder("UTF-8", "SJIS-WIN");
+	struct { 
+		string name, value;
+		string::encoder &enc;
+	} utf8 = 
+	{
+		string(buffersize, 0), 
+		string(buffersize, 0), 
+		encoder, 
+	};
+
+	struct the
+	{
+		static void jsonescape(char *src, char *tar)
+		{
+			uchar *s = (uchar *)src;
+			uchar *t = (uchar *)tar;
+			for (; *s; s++)
+			{
+				switch (*s)
+				{
+				case '"' : *(t++) = '\\'; *(t++) = '"';  break;
+				case '/' : *(t++) = '\\'; *(t++) = '/';  break;
+				case '\\': *(t++) = '\\'; *(t++) = '\\'; break;
+				default  : *(t++) = *s; break;
+				}
+			}
+			*t = '\0';
+		}
+	};
+	string jname(buffersize, 0);
+	string jvalue(buffersize, 0);
+
+
 	//通知単位
 	int frames = 20;//★
 	int64 frame = todo / frames;
 
 	//EBCDICファイルオープン
-	ifs.ebc.open(path.ebc.c_str(), std::ios::binary | std::ios::in);
+	std::ifstream &ifs = this->ifs.ebc;
+	ifs.open(path.ebc.c_str(), std::ios::binary | std::ios::in);
 	done = 0;
+
+	//出力ストリーム
+	std::ofstream &ofs = this->ofs.json;
+
+	ofs << "[" << endl;
 
 	//１行ずつ
 	int rsize = fdg.rsize;
 	string line(rsize, 0);
-	while (ifs.ebc && ifs.ebc.read(&line[0], line.size()))
+	while (ifs && ifs.read(&line[0], line.size()))
 	{
+		ofs.put(done ? ',' : ' ');
+		ofs.put('{');
+		ofs.put('\n');
+		//スケルトンに変換結果を格納
+		fdg.conv(line, conv);
+
+		//変換後の項目ごと
+		int c = 0;
+		for (generic::properties::const_iterator i = conv.begin(), e = conv.end()
+			; i != e; ++i)
+		{
+			utf8.name = "";
+			utf8.value = "";
+
+			//UTF-8変換
+			utf8.enc.encode(i->name, utf8.name);
+			utf8.enc.encode(i->value, utf8.value);
+
+			//JSONエスケープ
+			the::jsonescape(&utf8.name[0], &jname[0]);
+			the::jsonescape(&utf8.value[0], &jvalue[0]);
+
+			ofs.put(c++ ? ',' : ' ');
+			ofs.put('"');
+			ofs.write(jname.c_str(), ::strlen(jname.c_str()));
+			ofs.put('"');
+			ofs.put(':');
+			ofs.put('"');
+			ofs.write(jvalue.c_str(), ::strlen(jvalue.c_str()));
+			ofs.put('"');
+			ofs.put('\n');
+		}
 		//途中経過通知
 		if (done % frame == 0)
 		{
 			notifyboard(done);
 		}
 		done++;
-	}
-	notifyboard(done);
 
-	ifs.ebc.close();
+		ofs.put('}');
+		ofs.put('\n');
+	}
+
+	ofs << "]" << endl;
+
+	ifs.close();
+	ofs.close();
+	notifyboard(done);
 }
 //====================================================
 //= struct job::board --オブザーバー純粋仮想クラス--
