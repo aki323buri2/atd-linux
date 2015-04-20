@@ -1,6 +1,5 @@
 // main.cpp
 #include "common.h"
-#include "test.h"//★
 #include "ebc2json.h"
 void sleep(int milliseconds)
 {
@@ -152,7 +151,6 @@ int run(int argc, char **argv)
 
 	notify("");
 	notify("#################################################");
-	// test::tester::dotest(arg.ebc, list.fdg, list.key, list.json, commandline.looksuffix);
 	ebc2json::execute::parallel(arg.ebc, list.fdg, list.key, list.json, commandline.looksuffix);
 	notify("#################################################");
 
