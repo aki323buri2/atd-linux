@@ -2,6 +2,36 @@
 #include "common.h"
 #include "ebc2json.job.h"
 using namespace ebc2json;
+void job::map::init(const string &ebc, const strings &fdgs, const strings &keys, const strings &jsons)
+{
+	//ジョブ登録
+	for (strings::const_iterator 
+		  f = fdgs .begin(), fe = fdgs .end()
+		, k = keys .begin(), ke = keys .end()
+		, j = jsons.begin(), je = jsons.end()
+		; f != fe && k != ke && j != je; ++f, ++k, ++j
+	)
+	{
+		struct { string ebc; } split;
+		const string &key = *k;
+		const string &fdg = *f;
+		const string &json = *j;
+		split.ebc = 
+			  path::dirname(json)
+			+ path::basename(ebc) + "." + key + "." + path::filename(fdg);
+
+		//レコード長取得
+		insert(value_type(key[0], new job(split.ebc, fdg, json)));
+		int rsize = find(key[0])->second->fdg.rsize;
+		if (rsize > this->rsize) this->rsize = rsize;
+	}
+
+	//ファイルサイズ
+	fsize = path::filesize(ebc);
+
+	//EBCDICファイルを開く
+	ifs.open(ebc.c_str(), std::ios::in | std::ios::binary);
+}
 job::job(
 	  const string &ebc
 	, const string &fdg
@@ -41,34 +71,6 @@ void job::map::clear()
 		iterator p = i;
 		erase(p);
 	}
-}
-void job::map::init(const string &ebc, const strings &fdgs, const strings &keys, const strings &jsons)
-{
-	//ジョブ登録
-	for (strings::const_iterator 
-		  f = fdgs .begin(), fe = fdgs .end()
-		, k = keys .begin(), ke = keys .end()
-		, j = jsons.begin(), je = jsons.end()
-		; f != fe && k != ke && j != je; ++f, ++k, ++j
-	)
-	{
-		struct { string ebc; } split;
-		const string &key = *k;
-		const string &fdg = *f;
-		const string &json = *j;
-		split.ebc = ebc + "." + key + "." + path::filename(fdg) + ".tran.json";
-
-		//レコード長取得
-		insert(value_type(key[0], new job(split.ebc, fdg, json)));
-		int rsize = find(key[0])->second->fdg.rsize;
-		if (rsize > this->rsize) this->rsize = rsize;
-	}
-
-	//ファイルサイズ
-	fsize = path::filesize(ebc);
-
-	//EBCDICファイルを開く
-	ifs.open(ebc.c_str(), std::ios::in | std::ios::binary);
 }
 //====================================================
 //= job::map::read() -- EBCDICファイルをレコード区分で分割する
