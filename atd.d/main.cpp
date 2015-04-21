@@ -83,6 +83,7 @@ int run(int argc, char **argv)
 			"  -e --ebc=<path>            : EBCDICファイルのパス" CRLF
 			"  -d --fdg=<path[;path2;..]> : FDG列定義ファイルのパス（リストも可-';'区切り-）" CRLF
 			"  -k --keys=<key1,key2,>     : マルチレコードの判別文字リスト-','区切り-" CRLF
+			"  -s --looksuffix            : マルチレコードの判別文字が末尾かどうか" CRLF
 			<< endl;
 		return 1;
 	}
