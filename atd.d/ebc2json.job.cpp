@@ -84,18 +84,22 @@ void job::map::read(bool looksuffix)
 	int64 done = 0;
 	int frames = 50; //★
 	int64 frame = todo / frames;
+	if (!frame) frame = todo;//ゼロ除算防止！
 	string progress;
 
 	//EBCDICエンコダ
 	string::ebcdic ebcdic;
 
+	//レコード区分のオフセット
+	int offset = looksuffix ? rsize-1 : 0;
+
 	//EBCDICファイルを１行ずつ処理
 	string line(rsize, 0);
 	iterator i;
+		
 	while (ifs && ifs.read(&line[0], line.size()))
 	{
 		//レコード区分ってやつ
-		int offset = looksuffix ? rsize-1 : 0;
 		uchar ebc = line[offset];
 		uchar key = ebcdic.ebc2sjis_byte(ebc);
 
@@ -103,7 +107,7 @@ void job::map::read(bool looksuffix)
 		i = find(key);
 		if (i == end()) continue;
 		job *j = i->second;
-
+		
 		//TODO行数インクリメント
 		j->todo++;
 		//EBCDIC分割先ストリーム
@@ -130,7 +134,6 @@ void job::map::read(bool looksuffix)
 	{
 		i->second->ofs.ebc.close();
 	}
-
 }
 //====================================================
 //= job::translate() -- EBCDICファイルを変換する
@@ -191,6 +194,8 @@ void job::translate()
 	//通知単位
 	int frames = 20;//★
 	int64 frame = todo / frames;
+	if (!frame) frame = todo;//ゼロ除算防止！
+
 
 	//EBCDICファイルオープン
 	std::ifstream &ifs = this->ifs.ebc;
