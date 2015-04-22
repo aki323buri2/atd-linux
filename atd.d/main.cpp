@@ -82,8 +82,11 @@ int run(int argc, char **argv)
 			"  -h --help -?               : ヘルプの表示" CRLF
 			"  -e --ebc=<path>            : EBCDICファイルのパス" CRLF
 			"  -d --fdg=<path[;path2;..]> : FDG列定義ファイルのパス（リストも可-';'区切り-）" CRLF
-			"  -k --keys=<key1,key2,>     : マルチレコードの判別文字リスト-','区切り-" CRLF
+			"  -k --keys=<key1,key2,>     : マルチレコードの判別文字リスト-','区切り- *1" CRLF
 			"  -s --looksuffix            : マルチレコードの判別文字が末尾かどうか" CRLF
+			CRLF
+			"*1: -kオプションを空にする場合は'-'を指定してください"
+			CRLF
 			<< endl;
 		return 1;
 	}
@@ -185,7 +188,7 @@ void commandline::apply(int argc, char **argv)
 	while (true)
 	{
 		int oi;
-		int opt = ::getopt_long(argc, argv, "he:d:", options, &oi);
+		int opt = ::getopt_long(argc, argv, "he:d:k:s", options, &oi);
 		if (opt == -1)
 		{
 			break;
@@ -201,7 +204,8 @@ void commandline::apply(int argc, char **argv)
 			looksuffix = true;
 			break;
 		default: 
-			value_of(map[opt]) = optarg;
+				cout << optarg << endl;
+			value_of(map[opt]) = optarg ? optarg : "";
 			break;
 		}
 	}
