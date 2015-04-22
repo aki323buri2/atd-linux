@@ -90,24 +90,32 @@ void job::map::read(bool looksuffix)
 	//EBCDICエンコダ
 	string::ebcdic ebcdic;
 
+	//################################################
+	//# FDGマップ件数が１件ならばレコード分割しなくてよい
+	//################################################
+	bool notest = size() == 1;
+
 	//レコード区分のオフセット
 	int offset = looksuffix ? rsize-1 : 0;
 
 	//EBCDICファイルを１行ずつ処理
 	string line(rsize, 0);
-	iterator i;
-		
+	//判定の必要が無ければ先頭要素でよい	
+	iterator i = begin();
 	while (ifs && ifs.read(&line[0], line.size()))
 	{
-		//レコード区分ってやつ
-		uchar ebc = line[offset];
-		uchar key = ebcdic.ebc2sjis_byte(ebc);
+		if (!notest)
+		{
+			//レコード区分ってやつ
+			uchar ebc = line[offset];
+			uchar key = ebcdic.ebc2sjis_byte(ebc);
 
-		//ジョブ特定
-		i = find(key);
-		if (i == end()) continue;
+			//ジョブ特定
+			i = find(key);
+			if (i == end()) continue;
+		}
 		job *j = i->second;
-		
+
 		//TODO行数インクリメント
 		j->todo++;
 		//EBCDIC分割先ストリーム
