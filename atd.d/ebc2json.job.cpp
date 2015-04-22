@@ -84,7 +84,7 @@ void job::map::read(bool looksuffix)
 	int64 done = 0;
 	int frames = 50; //★
 	int64 frame = todo / frames;
-	if (!frame) frame = todo;//ゼロ除算防止！
+	if (!frame) frame = 1;//ゼロ除算防止！
 	string progress;
 
 	//EBCDICエンコダ
@@ -202,7 +202,7 @@ void job::translate()
 	//通知単位
 	int frames = 20;//★
 	int64 frame = todo / frames;
-	if (!frame) frame = todo;//ゼロ除算防止！
+	if (!frame) frame = 1;//ゼロ除算防止！
 
 
 	//EBCDICファイルオープン
