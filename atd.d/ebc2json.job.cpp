@@ -17,7 +17,7 @@ void job::map::init(const string &ebc, const strings &fdgs, const strings &keys,
 		const string &fdg = *f;
 		const string &json = *j;
 		split.ebc = 
-			  path::dirname(json)
+			  path::dirname(json) + "/"
 			+ path::basename(ebc) + "." + key + "." + path::filename(fdg);
 
 		//レコード長取得
