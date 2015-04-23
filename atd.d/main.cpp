@@ -85,8 +85,6 @@ int run(int argc, char **argv)
 			"  -k --keys=<key1,key2,>     : マルチレコードの判別文字リスト-','区切り- *1" CRLF
 			"  -s --looksuffix            : マルチレコードの判別文字が末尾かどうか" CRLF
 			CRLF
-			"*1: -kオプションを空にする場合は'-'を指定してください"
-			CRLF
 			<< endl;
 		return 1;
 	}
