@@ -1,6 +1,6 @@
 NAME = ebc2json
-BINDIR = ./bin
-OBJDIR = ./obj
+BINDIR = ../bin
+OBJDIR = ../obj
 TARGET = $(BINDIR)/$(NAME).so
 EXEOUT = $(BINDIR)/$(NAME)
 
