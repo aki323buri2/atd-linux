@@ -57,8 +57,8 @@ int run(int argc, char **argv)
 	//-----シングルレコードパターン-----//
 
 	//-----マルチレコードパターン-----//
-	commandline.value_of("ebc") = "/home/ebcdic-files/TDBK1D1.D0209";
 	commandline.value_of("ebc") = home + "/ebc/TDBK1D1.D0209";
+	commandline.value_of("ebc") = home + "/ebc/TDBK1D1.D0419";
 	commandline.value_of("fdg") = 
 		""  + home + "/fdg/TUF010.TXT"
 		";" + home + "/fdg/TUF020.TXT"
