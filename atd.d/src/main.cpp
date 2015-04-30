@@ -50,11 +50,6 @@ int run(int argc, char **argv)
 		commandline.value_of("keys"), 
 	};
 	
-	//-----シングルレコードパターン-----//
-	commandline.value_of("ebc") = home + "/ebc/TMASAPF.RDMLIB";
-	commandline.value_of("ebc") = home + "/ebc/ZAIKOPF.KCRDMLB";
-	commandline.value_of("fdg") = "";
-	//-----シングルレコードパターン-----//
 
 	//-----マルチレコードパターン-----//
 	commandline.value_of("ebc") = home + "/ebc/TDBK1D1.D0209";
@@ -66,6 +61,13 @@ int run(int argc, char **argv)
 		;
 	commandline.value_of("keys") = "1,2,3";
 	//-----マルチレコードパターン-----//
+	
+	//-----シングルレコードパターン-----//
+	commandline.value_of("ebc") = home + "/ebc/TMASAPF.RDMLIB";
+	commandline.value_of("ebc") = home + "/ebc/ZAIKOPF.KCRDMLB";
+	commandline.value_of("fdg") = "";
+	commandline.value_of("keys") = "1";
+	//-----シングルレコードパターン-----//
 
 	//コマンドライン引数解析
 	commandline.apply(argc, argv);
