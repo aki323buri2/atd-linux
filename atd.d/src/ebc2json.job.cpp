@@ -4,6 +4,10 @@
 using namespace ebc2json;
 void job::map::init(const string &ebc, const strings &fdgs, const strings &keys, const strings &jsons)
 {
+	//一時ファイルのディレクトリ
+	struct { string dir; } temp;
+	temp.dir = "/tmp";
+
 	//ジョブ登録
 	for (strings::const_iterator 
 		  f = fdgs .begin(), fe = fdgs .end()
@@ -12,16 +16,24 @@ void job::map::init(const string &ebc, const strings &fdgs, const strings &keys,
 		; f != fe && k != ke && j != je; ++f, ++k, ++j
 	)
 	{
-		struct { string ebc; } split;
 		const string &key = *k;
 		const string &fdg = *f;
 		const string &json = *j;
-		split.ebc = 
-			  path::dirname(json) + "/" 
-			+ path::basename(ebc) + "." + key + "." + path::filename(fdg);
+
+		//一時ファイル
+		struct { string ebc; } split;
+		struct { string json; } work;
+		split.ebc = path::mkstemp(temp.dir + "/" + path::basename(json) + "-ebc");
+		work.json = path::mkstemp(temp.dir + "/" + path::basename(json));
+
+		//ジョブ登録
+		insert(value_type(key[0], new job(split.ebc, fdg, json)));
+
+		//クリーナーに一時ファイルを登録
+		cleaner->entry(split.ebc);
+		cleaner->entry(work.json, json);
 
 		//レコード長取得
-		insert(value_type(key[0], new job(split.ebc, fdg, json)));
 		int rsize = find(key[0])->second->fdg.rsize;
 		if (rsize > this->rsize) this->rsize = rsize;
 	}
@@ -48,7 +60,6 @@ job::job(
 	//出力ストリームクリア＆追記オープン
 	ofs.ebc.open(ebc.c_str(), std::ios::out | std::ios::binary);
 	ofs.json.open(json.c_str(), std::ios::out | std::ios::binary);
-
 }
 job::~job()
 {
@@ -57,11 +68,14 @@ job::~job()
 job::map::map()
 : rsize(0)
 , fsize(0)
+, cleaner(new struct cleaner())
 {
 }
 job::map::~map()
 {
 	clear();
+	//クリーナー破棄
+	delete cleaner;
 }
 void job::map::clear()
 {
@@ -275,6 +289,63 @@ void job::translate()
 job::board::board()
 : todo(0)
 {
+}
+//====================================================
+//= struct job::map::cleaner --クリーナー--
+//====================================================
+job::map::cleaner::cleaner()
+: list(new struct list())
+{
+}
+job::map::cleaner::~cleaner()
+{
+	delete list;
+}
+void job::map::cleaner::entry(const string &path, const string &move)
+{
+	list->push_back(new item(path, move));
+}
+job::map::cleaner::item::item(const string &path, const string &move)
+: path(path), move(move), done(false)
+{
+}
+job::map::cleaner::item::~item()
+{
+	cleanup();
+}
+job::map::cleaner::list::~list()
+{
+	for (iterator i = begin(); i != end(); )
+	{
+		delete *i;
+		i = erase(i);
+	}
+}
+void job::map::cleaner::list::cleanup()
+{
+	for (iterator i = begin(), e = end(); i != e; ++i)
+	{
+		(*i)->cleanup();
+	}
+}
+void job::map::cleaner::item::cleanup()
+{
+	if (done) return;
+	if (move.length())
+	{
+		if (path::move(path, move, true/*force*/))
+		{
+			cout << "ファイルを移動しました : " << path << " -> " << move << endl;
+		}
+	}
+	else
+	{
+		if (path::unlink(path))
+		{
+			cout << "ファイルを削除しました : " << path << endl;
+		}
+	}
+	done = true;
 }
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

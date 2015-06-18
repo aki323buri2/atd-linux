@@ -19,7 +19,6 @@ struct job : public object
 	int64 todo, done;
 	struct board *board;
 
-
 	job(
 		  const string &ebc
 		, const string &fdg
@@ -33,11 +32,19 @@ struct job : public object
 
 	void demo(const generic::notify &notify) const;
 };
+//====================================================
+//= struct ebc2json::map
+//====================================================
 struct job::map : public object, public std::map<uchar, job *>
 {
+	struct cleaner;
+
 	std::ifstream ifs;
 	int rsize;
 	int64 fsize;
+
+	//クリーナー（一時ファイルの削除、移動）
+	struct cleaner *cleaner;
 
 	map();
 	~map();
@@ -47,12 +54,41 @@ struct job::map : public object, public std::map<uchar, job *>
 
 	void demo(const generic::notify &notify) const;
 };
+//====================================================
+//= struct ebc2json::job::board
+//====================================================
 struct job::board : public object
 {
 	string json;
 	int64 todo;
 	board();
 	virtual void notify(int64 done) = 0;
+};
+//====================================================
+//= struct ebc2json::job::map::cleaner
+//====================================================
+struct job::map::cleaner : public object
+{
+	struct item;
+	struct list;
+	struct list *list;
+	cleaner();
+	~cleaner();
+	void entry(const string &path, const string &move = "");
+};
+struct job::map::cleaner::item : public object
+{
+	string path;
+	string move;
+	bool done;
+	item(const string &path, const string &move);
+	~item();
+	void cleanup();
+};
+struct job::map::cleaner::list : public std::vector<job::map::cleaner::item *>
+{
+	~list();
+	void cleanup();
 };
 }//namespace ebc2json
 #endif//__ebc2json_job_h__

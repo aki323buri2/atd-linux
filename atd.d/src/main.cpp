@@ -156,7 +156,13 @@ int run(int argc, char **argv)
 
 	notify("");
 	notify("#################################################");
-	ebc2json::execute::parallel(arg.ebc, list.fdg, list.key, list.json, commandline.looksuffix);
+	ebc2json::execute::parallel(
+		arg.ebc
+		, list.fdg
+		, list.key
+		, list.json
+		, commandline.looksuffix
+		);
 	notify("#################################################");
 
 	return 0;
