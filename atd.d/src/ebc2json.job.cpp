@@ -27,7 +27,7 @@ void job::map::init(const string &ebc, const strings &fdgs, const strings &keys,
 		work.json = path::mkstemp(temp.dir + "/" + path::basename(json));
 
 		//ジョブ登録
-		insert(value_type(key[0], new job(split.ebc, fdg, json)));
+		insert(value_type(key[0], new job(split.ebc, fdg, work.json)));
 
 		//クリーナーに一時ファイルを登録
 		cleaner->entry(split.ebc);
