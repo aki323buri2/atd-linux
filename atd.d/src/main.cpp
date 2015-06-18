@@ -39,6 +39,7 @@ int frame(int argc, char **argv)
 
 int run(int argc, char **argv)
 {
+	//ホームディレクトリ
 	string home = path::dirname(app.dirname);
 
 	//コマンドライン引数オブジェクト

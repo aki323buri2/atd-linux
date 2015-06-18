@@ -3,6 +3,7 @@
 using namespace atd;
 #include <libgen.h>//for ::dirname(), ::basename()
 #include <sys/stat.h>	//for ::mkdir()
+#include <errno.h>
 //====================================================
 //= struct atd::path
 //====================================================
@@ -132,8 +133,89 @@ bool path::mkdir(const string &path, int mode)
 	//最終的に成功したかどうか
 	return r == 0;
 }
+namespace
+{
+	static bool error(const char *format, ...)
+	{
+		int err = errno;
 
-//ファイル情報
+		va_list va;
+		va_start(va, format);
+		string s(::vsnprintf(0, 0, format, va) + 1, 0);
+		va_end(va);
+		va_start(va, format);
+		::vsnprintf(&s[0], s.size(), format, va);
+		va_end(va);
+
+		std::cerr << "!!! errno[" << err << "] " <<  s << endl;
+		return false;
+	}
+}
+//ファイルコピー＆移動
+bool path::copy(const string &from, const string &to, bool force)
+{
+	if (!force && exists(to))
+	{
+		return error("path::copy() : %s が存在しています", to.c_str());
+	}
+	std::ifstream ifs(from.c_str(), std::ios::binary | std::ios::in);
+	std::ofstream ofs(to  .c_str(), std::ios::binary | std::ios::out);
+	if (filesize(from))
+	{
+		ofs << ifs.rdbuf() << std::flush;
+	}
+	return (ifs && ofs);
+
+}
+bool path::move(const string &from, const string &to, bool force)
+{
+	bool ex = exists(to);
+	if (!force && ex)
+	{
+		return error("path::move() : %s が存在しています", to.c_str());
+	}
+	if (ex && !unlink(to))
+	{
+		return false;
+	}
+	//リネームトライ
+	bool success = (::rename(from.c_str(), to.c_str()) == 0);
+	if (!success && errno != EXDEV)
+	{
+		return error("path::move() : rename失敗 %s -> %s", from.c_str(), to.c_str());
+	}
+	if (!success)
+	{
+		//マウント違いで失敗してるんならバイトコピーしてコピー元削除
+		success = copy(from, to) && unlink(from);
+	}
+	return success;
+}
+//ファイルの削除
+bool path::unlink(const string &path)
+{
+	if (::unlink(path.c_str()) != 0)
+	{
+		return error("path::unlink() : %s の削除に失敗", path.c_str());
+	}
+	return true;
+}
+//一時ファイルの作成
+string path::mkstemp(const string &prefix)
+{
+	string flex = "XXXXXX";//'X'６桁で指定するのはmkstemp()システムコールの仕様です！
+	string s = prefix + "-" + flex;
+	int fd = ::mkstemp(&s[0]);//ファイルデスクリプタが返る
+	if (fd < 0)
+	{
+		error("path::mkstemp() : 一時ファイルの作成に失敗 template='%s'", s.c_str());
+		return "";
+	}
+	return s.c_str();
+}
+//====================================================
+//= ファイル情報
+//====================================================
 path::fileinfo_t::fileinfo_t()
 : dev(0)
 , ino(0)

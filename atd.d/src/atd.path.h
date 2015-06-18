@@ -37,6 +37,14 @@ struct path : public object
 	//ディレクトリの作成
 	static bool mkdir(const string &path, int mode = 0777);
 
+	//ファイルコピー＆移動
+	static bool copy(const string &from, const string &to, bool force = false);
+	static bool move(const string &from, const string &to, bool force = false);
+	//ファイルの削除
+	static bool unlink(const string &path);
+	//一時ファイルの作成
+	static string mkstemp(const string &prefix);
+
 	//ファイル情報
 	struct fileinfo_t 
 	{
