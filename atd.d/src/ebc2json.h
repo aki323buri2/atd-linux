@@ -12,6 +12,7 @@ struct execute
 		, const strings &keys
 		, const strings &jsons
 		, bool looksuffix 
+		, bool tmpatlocal
 	);
 };
 }//namespace ebc2json

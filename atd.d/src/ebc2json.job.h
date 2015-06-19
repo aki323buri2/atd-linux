@@ -49,7 +49,13 @@ struct job::map : public object, public std::map<uchar, job *>
 	map();
 	~map();
 	void clear();
-	void init(const string &ebc, const strings &fdgs, const strings &keys, const strings &jsons);
+	void init(
+		const string &ebc
+		, const strings &fdgs
+		, const strings &keys
+		, const strings &jsons
+		, bool tmpatlocal//一時ファイルを出力フォルダに作る
+		);
 	void read(bool looksuffix);
 
 	void demo(const generic::notify &notify) const;

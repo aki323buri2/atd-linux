@@ -2,11 +2,17 @@
 #include "common.h"
 #include "ebc2json.job.h"
 using namespace ebc2json;
-void job::map::init(const string &ebc, const strings &fdgs, const strings &keys, const strings &jsons)
+void job::map::init(
+	const string &ebc
+	, const strings &fdgs
+	, const strings &keys
+	, const strings &jsons
+	, bool tmpatlocal
+)
 {
 	//一時ファイルのディレクトリ
-	struct { string dir; } temp;
-	temp.dir = "/tmp";
+	struct { string sys, dir; } temp;
+	temp.sys = "/tmp";//システムの一時ファイルディレクトリ
 
 	//ジョブ登録
 	for (strings::const_iterator 
@@ -23,8 +29,14 @@ void job::map::init(const string &ebc, const strings &fdgs, const strings &keys,
 		//一時ファイル
 		struct { string ebc; } split;
 		struct { string json; } work;
+		
+		//tmpatlocalフラグで一時ファイルを作る場所を切り替える
+		temp.dir = tmpatlocal ? path::dirname(json) : temp.sys;
+
 		split.ebc = path::mkstemp(temp.dir + "/" + path::basename(json) + "-ebc");
 		work.json = path::mkstemp(temp.dir + "/" + path::basename(json));
+
+
 
 		//ジョブ登録
 		insert(value_type(key[0], new job(split.ebc, fdg, work.json)));
@@ -311,7 +323,6 @@ job::map::cleaner::item::item(const string &path, const string &move)
 }
 job::map::cleaner::item::~item()
 {
-	return;
 	cleanup();
 }
 job::map::cleaner::list::~list()

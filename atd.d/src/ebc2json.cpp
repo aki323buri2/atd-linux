@@ -10,10 +10,11 @@ void execute::parallel(
 	, const strings &keys
 	, const strings &jsons
 	, bool looksuffix
+	, bool tmpatlocal
 )
 {
 	job::map jj;
-	jj.init(ebc, fdgs, keys, jsons);
+	jj.init(ebc, fdgs, keys, jsons, tmpatlocal);
 	jj.read(looksuffix);
 
 	slot::list ss(jj);

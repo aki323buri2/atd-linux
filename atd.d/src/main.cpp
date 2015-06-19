@@ -86,7 +86,16 @@ int run(int argc, char **argv)
 			"  -e --ebc=<path>            : EBCDICファイルのパス" CRLF
 			"  -d --fdg=<path[;path2;..]> : FDG列定義ファイルのパス（リストも可-';'区切り-）" CRLF
 			"  -k --keys=<key1,key2,>     : マルチレコードの判別文字リスト-','区切り- *1" CRLF
-			"  -s --looksuffix            : マルチレコードの判別文字が末尾かどうか" CRLF
+			CRLF
+			"                             注)'-d' および '-k'オプションに区切り文字を指定して複数の値を設定する場合、" CRLF
+			"                                 '\"'で文字列を囲む必要があります" CRLF
+			CRLF
+			"  -s --looksuffix            : マルチレコードの判別文字が末尾かどうか (規定値 false)" CRLF
+			"  -t --tmpatlocal            : 一時ファイルを/tmpではなく出力フォルダに作るかどうか (規定値false)" CRLF
+			CRLF
+			"                             注)一時ファイルを/tmpではなく出力フォルダに作ると、" CRLF
+			"                                 「物理メモリの半分のサイズ」という/tmpの制限を超えることができますが、" CRLF
+			"                                 処理スピードが遅くなるかもしれません。" CRLF
 			CRLF
 			<< endl;
 		return 1;
@@ -162,6 +171,7 @@ int run(int argc, char **argv)
 		, list.key
 		, list.json
 		, commandline.looksuffix
+		, commandline.tmpatlocal
 		);
 	notify("#################################################");
 
@@ -182,6 +192,7 @@ void commandline::apply(int argc, char **argv)
 		{"fdg" , required_argument	, NULL, 'd'}, 
 		{"keys", required_argument	, NULL, 'k'}, 
 		{"look-suffix", no_argument	, NULL, 's'}, 
+		{"tmp-at-local", no_argument, NULL, 't'}, 
 		{0}
 	};
 	std::map<int, string> map;
@@ -195,7 +206,7 @@ void commandline::apply(int argc, char **argv)
 	while (true)
 	{
 		int oi;
-		int opt = ::getopt_long(argc, argv, "he:d:k:s", options, &oi);
+		int opt = ::getopt_long(argc, argv, "he:d:k:st", options, &oi);
 		if (opt == -1)
 		{
 			break;
@@ -209,6 +220,9 @@ void commandline::apply(int argc, char **argv)
 			break;
 		case 's':
 			looksuffix = true;
+			break;
+		case 't':
+			tmpatlocal = true;
 			break;
 		default: 
 				cout << optarg << endl;

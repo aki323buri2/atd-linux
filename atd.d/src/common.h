@@ -34,15 +34,18 @@ struct commandline : public generic::properties
 {
 	bool showhelp;
 	bool looksuffix;
+	bool tmpatlocal;//一時ファイルをＯＳ指定ではなくローカルに配置する
 
 	commandline()
 	: showhelp(false)
 	, looksuffix(false)
+	, tmpatlocal(false)
 	{
 	}
 	commandline(int argc, char **argv)
 	: showhelp(false)
 	, looksuffix(false)
+	, tmpatlocal(false)
 	{
 		apply(argc, argv);
 	}
@@ -52,7 +55,8 @@ struct commandline : public generic::properties
 	{
 		generic::notifyf notifyf = notify;
 		generic::properties::demo(notify, 7);//★
-		notifyf("*> look-suffix : %s", looksuffix ? "true" : "false");
+		notifyf("*> look-suffix  : %s", looksuffix ? "true" : "false");
+		notifyf("*> tmp at local : %s", tmpatlocal ? "true" : "false");
 	}
 };
 //====================================================
