@@ -37,10 +37,12 @@ struct commandline : public generic::properties
 
 	commandline()
 	: showhelp(false)
+	, looksuffix(false)
 	{
 	}
 	commandline(int argc, char **argv)
 	: showhelp(false)
+	, looksuffix(false)
 	{
 		apply(argc, argv);
 	}

@@ -311,6 +311,7 @@ job::map::cleaner::item::item(const string &path, const string &move)
 }
 job::map::cleaner::item::~item()
 {
+	return;
 	cleanup();
 }
 job::map::cleaner::list::~list()
