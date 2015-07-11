@@ -55,6 +55,7 @@ int run(int argc, char **argv)
 	//-----マルチレコードパターン-----//
 	commandline.value_of("ebc") = home + "/ebc/TDBK1D1.D0209";
 	commandline.value_of("ebc") = home + "/ebc/TDBK1D1.D0419";
+	commandline.value_of("ebc") = home + "/ebc/TDBK1D1.D0419";
 	commandline.value_of("fdg") = 
 		""  + home + "/fdg/TUF010.TXT"
 		";" + home + "/fdg/TUF020.TXT"
@@ -66,6 +67,7 @@ int run(int argc, char **argv)
 	//-----シングルレコードパターン-----//
 	commandline.value_of("ebc") = home + "/ebc/TMASAPF.RDMLIB";
 	commandline.value_of("ebc") = home + "/ebc/ZAIKOPF.KCRDMLB";
+	commandline.value_of("ebc") = home + "/ebc/KANSOLSF.NAKAFIL1";
 	commandline.value_of("fdg") = "";
 	commandline.value_of("keys") = "1";
 	//-----シングルレコードパターン-----//

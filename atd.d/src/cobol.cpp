@@ -378,19 +378,20 @@ void cobol::ffd::conv(const char *ebcline, char *ptr) const
 			ptr--;//１つ戻る（末尾を指す）
 			uchar c = (uchar)*ptr;
 
+			//【注意】大文字でっ！
 			// '}' : +0  '{' : -0
-			// 'a' : +1  'j' : -1
-			// 'b' : +2  'k' : -2
-			// 'c' : +3  'l' : -3
+			// 'A' : +1  'J' : -1
+			// 'B' : +2  'K' : -2
+			// 'C' : +3  'L' : -3
 			//    ...       ...  
-			// 'i' : +9  'r' : -9
+			// 'I' : +9  'R' : -9
 
 			int n = 0;
 			if (false) { }
 			else if (c == '{') { n = 0; minus = false; }
 			else if (c == '}') { n = 0; minus = true ; }
-			else if (BETWEEN('a', c, 'i')) { n = c - 'a'; minus = false; }
-			else if (BETWEEN('j', c, 'r')) { n = c - 'j'; minus = true ; }
+			else if (BETWEEN('A', c, 'I')) { n = c - 'A' + 1; minus = false; }
+			else if (BETWEEN('J', c, 'R')) { n = c - 'j' + 1; minus = true ; }
 			
 			//末尾の文字（数字）をセット
 			*ptr = '0' + n;
