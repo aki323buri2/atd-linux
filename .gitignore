@@ -1,4 +1,4 @@
 #srcフォルダのみ同期
-/bin/
-/ebc/
-/fdg/
+/atd.d/bin/
+/atd.d/ebc/
+/atd.d/fdg/
