@@ -1,6 +1,6 @@
 
 
-          ASP      V24     FDG        V14-L02 (3720)  TMASAPF                             13.06.05/10.42.03   PAGE-0001
+          ASP      V24     FDG        V14-L02 (3720)  TMASAPF                             15.08.26/11.15.57   PAGE-0001
 
 
           COBOL  IMAGE  LIST     (NOTE: < > INDICATES PROGRAMMER DEFINED NAME)
@@ -65,7 +65,7 @@
 
 
 
-          ASP      V24     FDG        V14-L02 (3720)  TMASAPF                             13.06.05/10.42.03   PAGE-0002
+          ASP      V24     FDG        V14-L02 (3720)  TMASAPF                             15.08.26/11.15.57   PAGE-0002
 
 
                         02  YOSIN                PIC 9(8)                       PACKED-DECIMAL.
@@ -78,11 +78,8 @@
                         02  FAXNO                PIC X(15).
                         02  TOHICD               PIC X(6).
                         02  BUNKU                PIC X(1).
-                        02  AKI1                 PIC X(1).
-                        02  AKI2                 PIC X(1).
-                        02  AKI3                 PIC X(1).
-                        02  AKI4                 PIC X(1).
-                        02  AKI5                 PIC X(1).
+                        02  FAXBIN               PIC 9(2).
+                        02  MEKANN               PIC 9(3).
                         02  TOROKU               PIC 9(6)                       PACKED-DECIMAL.
                         02  SYUSEI               PIC 9(6)                       PACKED-DECIMAL.
                         02  SYUKEI               PIC 9(5).
@@ -93,6 +90,3 @@
                         02  BZEIKU               PIC 9(1).
                         02  BHSU                 PIC 9(1).
                         02  UHSU                 PIC 9(1).
-iconv() 関数は、ある文字エンコーディングの文字シーケンス列を別の文字
- エンコーディングの文字シーケンスに変換する。cd 引き数は変換ディスク リプタ
- (conversion descriptor) であり、以前は iconv_open(3) を呼び
