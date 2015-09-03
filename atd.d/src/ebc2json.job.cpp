@@ -349,12 +349,20 @@ void job::map::cleaner::item::cleanup()
 		{
 			cout << "ファイルを移動しました : " << path << " -> " << move << endl;
 		}
+		else 
+		{
+			cout << "!!! ファイルを移動できませんでした : " << path << " -> " << move << endl;
+		}
 	}
 	else
 	{
 		if (path::unlink(path))
 		{
 			cout << "ファイルを削除しました : " << path << endl;
+		}
+		else
+		{
+			cout << "!!! ファイルを削除できませんでした : " << path << endl;
 		}
 	}
 	done = true;
