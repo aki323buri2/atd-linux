@@ -432,9 +432,16 @@ void cobol::ffd::conv(const char *ebcline, char *ptr) const
 		//小数点を入れる位置を記憶
 		char *point = p;
 		//小数点部分を１文字ずつ後ろにずらす
+		// for (int i = 0; i < right; i++)
+		// {
+		// 	p++;
+		// 	*(p + 1) = *p;
+		// }
+		//最終文字の１つ右から1文字ずつ前の文字をコピー
+		p += right;
 		for (int i = 0; i < right; i++)
 		{
-			p++;
+			p--;
 			*(p + 1) = *p;
 		}
 		//小数点を挿入
