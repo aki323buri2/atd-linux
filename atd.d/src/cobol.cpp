@@ -391,7 +391,7 @@ void cobol::ffd::conv(const char *ebcline, char *ptr) const
 			else if (c == '{') { n = 0; minus = false; }
 			else if (c == '}') { n = 0; minus = true ; }
 			else if (BETWEEN('A', c, 'I')) { n = c - 'A' + 1; minus = false; }
-			else if (BETWEEN('J', c, 'R')) { n = c - 'j' + 1; minus = true ; }
+			else if (BETWEEN('J', c, 'R')) { n = c - 'J' + 1; minus = true ; }
 			
 			//末尾の文字（数字）をセット
 			*ptr = '0' + n;
